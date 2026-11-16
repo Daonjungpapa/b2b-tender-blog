@@ -1,3 +1,10 @@
-baseURL = "https://b2b-tender.example.github.io/"
+baseURL = "https://daonjungpapa.github.io/b2b-tender-blog/"
 languageCode = "ko-kr"
 title = "공공입찰 시방서 인텔리전스"
+enableRobotsTXT = true
+
+[permalinks]
+  posts = "/posts/:slug/"
+
+[markup.goldmark.renderer]
+  unsafe = true
