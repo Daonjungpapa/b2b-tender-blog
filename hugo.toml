@@ -1,3 +1,8 @@
+# Custom Domain Setup Note:
+# When migrating from GitHub Pages subpath to a custom domain (e.g. https://tender.yourdomain.com/):
+# 1) Create static/CNAME containing your custom domain (e.g. tender.yourdomain.com)
+# 2) Update baseURL below to "https://tender.yourdomain.com/"
+# 3) Configure DNS CNAME/A records pointing to daonjungpapa.github.io and enable Enforce HTTPS in GitHub Pages.
 baseURL = "https://daonjungpapa.github.io/b2b-tender-blog/"
 languageCode = "ko-kr"
 title = "공공입찰 시방서 인텔리전스"
@@ -8,3 +13,15 @@ enableRobotsTXT = true
 
 [markup.goldmark.renderer]
   unsafe = true
+
+[params]
+  adsenseClient = ""
+  ga4MeasurementId = ""
+  brandName = "퀀트 & 입찰 인텔리전스 랩"
+  brandEn = "Quant & Tender Intelligence Lab"
+  hubUrl = "https://daonjungpapa.github.io/"
+  siblingName = "IPO 퀀트 수급 레이더"
+  siblingUrl = "https://daonjungpapa.github.io/ipo-radar-blog/"
+  trackCode = "TRACK B · G2B TENDER"
+  accentRole = "tender"
+  heroSummary = "조달청 나라장터(G2B) 정보통신·네트워크·AI 인프라 입찰 공고 및 시방서를 정밀 분석하여 핵심 기술 스펙 3줄 요약, 필수 면허·지역제한 요건, 발주처 낙찰하한율 이력을 신속 브리핑합니다."
