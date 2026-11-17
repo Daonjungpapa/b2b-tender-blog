@@ -4,7 +4,7 @@ title = "공공입찰 시방서 인텔리전스"
 enableRobotsTXT = true
 
 [permalinks]
-  posts = "/posts/:slug/"
+  posts = "/posts/:contentbasename/"
 
 [markup.goldmark.renderer]
   unsafe = true
