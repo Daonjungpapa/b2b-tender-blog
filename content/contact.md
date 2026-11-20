@@ -45,7 +45,7 @@ description: "정보통신·CCTV·네트워크 중소 SI 기업을 위한 14일 
 | :--- | :--- | :--- |
 | **대표 이메일 (파일럿·B2B·정정)** | `lastima33@gmail.com` | 영업일 기준 1~2일 이내 순차 회신 |
 | **공식 네이버 블로그 브리핑** | [퀀트 & 입찰 인텔리전스 랩 (Naver)](https://blog.naver.com/lastima33) | 주요 공고 브리핑 및 공개 소통 창구 |
-| **통합 리서치 허브 포털** | [daonjungpapa.github.io](https://qtilab.com/) | Track A(공모주) · Track B(공공입찰) 통합 포털 |
+| **통합 리서치 허브 포털** | [qtilab.com](https://qtilab.com/) | Track A(공모주) · Track B(공공입찰) 통합 포털 |
 
 ### 이메일 신청 시 기재 항목 (복사용 양식)
 
