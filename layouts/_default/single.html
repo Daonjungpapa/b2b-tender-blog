@@ -5,196 +5,146 @@
 {{- $readTime := .ReadingTime -}}
 {{- if lt $readTime 1 }}{{ $readTime = 1 }}{{ end -}}
 
-<article class="article-card">
-  <nav class="breadcrumb" aria-label="현재 위치">
-    <a href="{{ .Site.Home.RelPermalink }}">홈</a>
-    <span>/</span>
-    {{- if $isPost -}}
-    <a href="{{ "posts/" | relURL }}">전체 리포트</a>
-    <span>/</span>
+{{- /* Look up structured KPI metadata for current post from data JSON */ -}}
+{{- $meta := false -}}
+{{- if $isPost -}}
+  {{- $items := cond $isTender hugo.Data.tender_summary.items hugo.Data.ipo_summary.items -}}
+  {{- range $items -}}
+    {{- if eq .slug $.Slug -}}
+      {{- $meta = . -}}
     {{- end -}}
-    <span>{{ .Title }}</span>
-  </nav>
-
-  <header class="article-header">
-    <div class="card-meta-row">
-      {{- if $isPost -}}
-        {{- with .GetTerms "categories" -}}
-          {{- range . -}}
-          <a class="badge {{ if $isTender }}badge-gold{{ else }}badge-emerald{{ end }}" href="{{ .RelPermalink }}" style="text-decoration:none;">{{ .LinkTitle }}</a>
-          {{- end -}}
-        {{- else -}}
-          <span class="badge {{ if $isTender }}badge-gold{{ else }}badge-emerald{{ end }}">{{ .Site.Params.trackCode | default "INTELLIGENCE" }}</span>
-        {{- end -}}
-        <span class="badge badge-navy mono-meta">읽기 약 {{ $readTime }}분</span>
-        {{- if not .Date.IsZero -}}
-        <time class="mono-meta" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">발행 {{ .Date.Format "2006-01-02 15:04" }}</time>
-        {{- end -}}
-      {{- else -}}
-        <span class="badge badge-navy">{{ .Params.docBadge | default "LAB GOVERNANCE" }}</span>
-        <span class="badge {{ if $isTender }}badge-gold{{ else }}badge-emerald{{ end }} mono-meta">읽기 약 {{ $readTime }}분</span>
-        {{- if not .Lastmod.IsZero -}}
-        <time class="mono-meta" datetime="{{ .Lastmod.Format "2006-01-02" }}">최종 개정 {{ .Lastmod.Format "2006-01-02" }}</time>
-        {{- end -}}
-      {{- end -}}
-    </div>
-
-    <h1>{{ .Title }}</h1>
-
-    {{- with .Description -}}
-    <p class="article-lead">{{ . }}</p>
-    {{- end -}}
-  </header>
-
-  {{- if $isPost -}}
-  <nav class="quick-toc" aria-label="리포트 핵심 목차 바로가기">
-    <span class="quick-toc-label">📑 리포트 핵심 목차 바로가기</span>
-    <div class="quick-toc-pills" data-quick-toc></div>
-  </nav>
   {{- end -}}
+{{- end -}}
 
-  {{- if and $isPost $adsense -}}
-  <aside class="ad-slot ad-slot-top" aria-label="상단 광고 영역">
-    <span class="ad-label">ADVERTISEMENT</span>
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="{{ $adsense }}"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </aside>
-  {{- end -}}
+<section class="qti-sec" style="padding-top:24px;">
+  <div class="qti-in">
+    <div class="qti-main-rail">
+      <article>
+        <nav class="qti-breadcrumb" aria-label="현재 위치">
+          <a href="{{ .Site.Home.RelPermalink }}">홈</a>
+          <span>›</span>
+          {{- if $isPost -}}<a href="{{ "posts/" | relURL }}">전체 리포트</a><span>›</span>{{- end -}}
+          <span>{{ .Title | truncate 42 }}</span>
+        </nav>
 
-  <div class="prose">
-    {{- $imgPrefix := "images/" | relURL -}}
-    {{- $rendered := .Content | replaceRE "(?s)<table([^>]*)>(.*?)</table>" "<p class=\"table-hint\" aria-hidden=\"true\">↔ 표를 좌우로 스크롤하여 전체 수치를 확인하세요</p><div class=\"table-wrap\"><table$1>$2</table></div>" -}}
-    {{- $rendered = $rendered | replaceRE `(<img[^>]*\ssrc=["'])/images/` (printf "${1}%s" $imgPrefix) -}}
-    {{- if and $isPost $adsense -}}
-      {{- $midAd := printf `<aside class="ad-slot ad-slot-mid" aria-label="본문 중간 광고 영역"><span class="ad-label">ADVERTISEMENT</span><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="%s"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></aside>` $adsense -}}
-      {{- $rendered = $rendered | replaceRE `(?s)\A(.*?<h2[\s>].*?)(<h2[\s>])` (printf "${1}%s${2}" $midAd) -}}
-    {{- end -}}
-    {{ $rendered | safeHTML }}
-  </div>
-
-  {{- if $isPost -}}
-    {{- with .GetTerms "tags" -}}
-    <div class="tag-row" style="margin-top:28px;padding-top:18px;border-top:1px solid var(--border);">
-      {{- range . -}}
-      <a class="tag-pill" href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
-      {{- end -}}
-    </div>
-    {{- end -}}
-
-    {{- $currentPermalink := .RelPermalink -}}
-    {{- $allPosts := (where .Site.RegularPages "Section" "posts").ByDate.Reverse -}}
-    {{- $related := slice -}}
-    {{- range $allPosts -}}
-      {{- if and (ne .RelPermalink $currentPermalink) (lt (len $related) 3) -}}
-        {{- $related = $related | append . -}}
-      {{- end -}}
-    {{- end -}}
-    {{- if gt (len $related) 0 -}}
-    <section class="related-reports" aria-labelledby="related-reports-heading">
-      <div class="related-head">
-        <div>
-          <div class="related-eyebrow">RELATED REPORTS · FURTHER READING</div>
-          <h3 id="related-reports-heading">함께 확인하면 좋은 최근 리포트</h3>
-        </div>
-        <a class="related-all-link" href="{{ "posts/" | relURL }}">전체 {{ len $allPosts }}건 보기 →</a>
-      </div>
-      <div class="related-grid">
-        {{- range $related -}}
-        {{- $rtRel := .ReadingTime -}}
-        {{- if lt $rtRel 1 }}{{ $rtRel = 1 }}{{ end -}}
-        <a class="related-card" href="{{ .RelPermalink }}">
-          <div class="related-meta">
-            <span class="badge {{ if $isTender }}badge-gold{{ else }}badge-emerald{{ end }}">
-              {{- with .GetTerms "categories" -}}
-                {{- range first 1 . -}}{{ .LinkTitle }}{{- end -}}
-              {{- else -}}
-                {{- $.Site.Params.trackCode | default "REPORT" -}}
-              {{- end -}}
+        <header style="margin-bottom:20px;">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;">
+            <span class="qti-badge {{ if $isTender }}qti-b-tender{{ else }}qti-b-ipo{{ end }} mono">
+              {{ .Site.Params.trackCode | default "QTI LAB" }}
             </span>
-            {{- if not .Date.IsZero -}}
-            <time class="mono-meta" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02" }}</time>
-            {{- end -}}
-            <span class="mono-meta">· {{ $rtRel }}분</span>
+            <span class="qti-badge qti-b-done mono">읽기 약 {{ $readTime }}분</span>
           </div>
-          <div class="related-title">{{ .Title }}</div>
-          {{- with .Description -}}
-          <p class="related-desc">{{ . | truncate 88 }}</p>
+          <h1 style="font-size:clamp(24px,3vw,33px);margin-bottom:12px;">{{ .Title }}</h1>
+          <div class="qti-trust-bar">
+            {{- if not .Date.IsZero -}}
+            <span>기준일 <b class="num">{{ .Date.Format "2006-01-02 15:04" }}</b></span>
+            {{- end -}}
+            <span>출처 <b>{{ if $isTender }}조달청 나라장터(G2B){{ else }}금융감독원 전자공시(DART){{ end }}</b></span>
+            <span>방법론 <b>v2.1</b></span>
+            {{- if and $meta $meta.source_url -}}
+            <span><a href="{{ $meta.source_url }}" target="_blank" rel="noopener noreferrer" style="font-weight:700;">원문 공시 보기 ↗</a></span>
+            {{- end -}}
+          </div>
+        </header>
+
+        {{- /* 4-KPI Row on Posts (Empty state graceful fallback) */ -}}
+        {{- if and $isPost $meta -}}
+          {{- if $isTender -}}
+          <div class="qti-kpi-grid" style="margin-bottom:20px;">
+            <div class="qti-kpi"><div class="qti-kpi-lbl">추정가격(배정예산)</div><div class="qti-kpi-val">{{ $meta.budget_label }}</div><div class="qti-kpi-sub">VAT 포함 기준</div></div>
+            <div class="qti-kpi"><div class="qti-kpi-lbl">발주처 과거 하한율</div><div class="qti-kpi-val">{{ if gt $meta.floor_rate 0 }}{{ printf "%.3f%%" $meta.floor_rate }}{{ else }}원문확인{{ end }}</div><div class="qti-kpi-sub">참고 이력 평균</div></div>
+            <div class="qti-kpi"><div class="qti-kpi-lbl">발주 지역</div><div class="qti-kpi-val" style="color:var(--tender);">{{ $meta.region }}</div><div class="qti-kpi-sub">{{ $meta.org | truncate 14 }}</div></div>
+            <div class="qti-kpi"><div class="qti-kpi-lbl">공고번호</div><div class="qti-kpi-val" style="font-size:15px;">{{ $meta.bid_no | default "-" }}</div><div class="qti-kpi-sub">나라장터 기준</div></div>
+          </div>
           {{- else -}}
-          <p class="related-desc">{{ .Summary | plainify | truncate 88 }}</p>
+          <div class="qti-kpi-grid" style="margin-bottom:20px;">
+            <div class="qti-kpi"><div class="qti-kpi-lbl">기관 경쟁률</div><div class="qti-kpi-val">{{ if gt $meta.comp_num 0 }}{{ lang.FormatNumber 1 $meta.comp_num }}:1{{ else }}수요예측 전{{ end }}</div><div class="qti-kpi-sub">DART 공시 기준</div></div>
+            <div class="qti-kpi"><div class="qti-kpi-lbl">의무보유확약</div><div class="qti-kpi-val">{{ if gt $meta.lock_num 0 }}{{ printf "%.1f%%" $meta.lock_num }}{{ else }}—{{ end }}</div><div class="qti-kpi-sub">30% 기준선 비교</div></div>
+            <div class="qti-kpi"><div class="qti-kpi-lbl">상장일 유통물량</div><div class="qti-kpi-val">{{ if gt $meta.flt_num 0 }}{{ printf "%.1f%%" $meta.flt_num }}{{ else }}—{{ end }}</div><div class="qti-kpi-sub">상장 직후 유통 비중</div></div>
+            <div class="qti-kpi"><div class="qti-kpi-lbl">대표 주관사</div><div class="qti-kpi-val" style="font-size:16px;">{{ $meta.underwriter | default "-" }}</div><div class="qti-kpi-sub">공모가 {{ $meta.band | truncate 16 }}</div></div>
+          </div>
           {{- end -}}
-          <span class="related-cta">리포트 전문 보기 →</span>
-        </a>
         {{- end -}}
-      </div>
-    </section>
-    {{- end -}}
 
-    {{- if $adsense -}}
-    <aside class="ad-slot ad-slot-bottom" aria-label="하단 광고 영역">
-      <span class="ad-label">ADVERTISEMENT</span>
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="{{ $adsense }}"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </aside>
-    {{- end -}}
+        {{- /* Prose with AdSense strictly AFTER first <h2> summary (NEVER under title!) */ -}}
+        <div class="qti-prose">
+          {{- $imgPrefix := "images/" | relURL -}}
+          {{- $rendered := .Content | replaceRE "(?s)<table([^>]*)>(.*?)</table>" "<div class=\"table-wrap\"><div class=\"table-scroll-hint\" aria-hidden=\"true\">↔ 좌우로 스크롤해 전체 수치를 확인하세요</div><table$1>$2</table></div>" -}}
+          {{- $rendered = $rendered | replaceRE `(<img[^>]*\ssrc=["'])/images/` (printf "${1}%s" $imgPrefix) -}}
+          {{- if and $isPost $adsense -}}
+            {{- $h2Parts := split $rendered "<h2" -}}
+            {{- if ge (len $h2Parts) 3 -}}
+              {{- $ad1 := printf `<aside class="qti-ad qti-ad-in-article" aria-label="본문 광고 1"><span class="qti-ad-label">ADVERTISEMENT</span><ins class="adsbygoogle" style="display:block;text-align:center;width:100%%;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="%s"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></aside>` $adsense -}}
+              {{- $ad2 := printf `<aside class="qti-ad qti-ad-in-article" aria-label="본문 광고 2"><span class="qti-ad-label">ADVERTISEMENT</span><ins class="adsbygoogle" style="display:block;text-align:center;width:100%%;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="%s"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></aside>` $adsense -}}
+              {{- $rebuilt := index $h2Parts 0 -}}
+              {{- range $idx, $part := after 1 $h2Parts -}}
+                {{- if eq $idx 1 -}}
+                  {{- $rebuilt = printf "%s%s<h2%s" $rebuilt $ad1 $part -}}
+                {{- else if eq $idx 3 -}}
+                  {{- $rebuilt = printf "%s%s<h2%s" $rebuilt $ad2 $part -}}
+                {{- else -}}
+                  {{- $rebuilt = printf "%s<h2%s" $rebuilt $part -}}
+                {{- end -}}
+              {{- end -}}
+              {{- $rendered = $rebuilt -}}
+            {{- end -}}
+          {{- end -}}
+          {{ $rendered | safeHTML }}
+        </div>
 
-    {{- /* 브리핑 데스크 CTA는 광고 여부와 관계없이 항상 노출 (퍼널 누수 방지) */ -}}
-    <aside class="editorial-slot" aria-label="리서치 허브 안내">
-      <div class="editorial-slot-label">{{ .Site.Params.brandName | default "퀀트 & 입찰 인텔리전스 랩" }} · BRIEFING DESK</div>
-      {{- if $isTender -}}
-      <h4>맞춤형 입찰 알림 파일럿 및 사내 폐쇄망 구축 상담</h4>
-      <p>본 아카이브는 조달청 나라장터(G2B)·공공데이터포털 원문 공고를 기반으로 자동 요약됩니다. 14일 무료 입찰 알림 파일럿 신청, 데이터 정정 제보 및 사내 폐쇄망 시방서 비교 도구 상담은 공식 문의 페이지를 이용해 주세요.</p>
-      {{- else -}}
-      <h4>더 많은 퀀트 수급·공공입찰 리포트를 한곳에서 확인하세요</h4>
-      <p>본 아카이브는 DART 전자공시와 나라장터(G2B) 원문 공고를 교차 검증하여 매일 업데이트됩니다. 공시 데이터 정정 제보 및 아카이브 문의는 공식 문의 페이지를 이용해 주세요.</p>
-      {{- end -}}
-      <div class="slot-actions">
-        <a class="btn btn-primary" href="{{ "posts/" | relURL }}">전체 리포트 목록</a>
-        {{- with .Site.Params.siblingUrl -}}
-        <a class="btn btn-outline" href="{{ . }}">{{ $.Site.Params.siblingName }} ↗</a>
-        {{- end -}}
-        <a class="btn btn-outline" href="{{ "contact/" | relURL }}">{{ if $isTender }}14일 무료 파일럿 · B2B 문의{{ else }}문의 · 데이터 제보{{ end }}</a>
-      </div>
-    </aside>
+        {{- if $isPost -}}
+          {{- if not $isTender -}}
+            {{ partial "report-3d-kpi.html" . }}
+            {{- if in .Title "266690" -}}
+              {{ partial "ipo-alpha-266690.html" . }}
+            {{- end -}}
+            {{ partial "ipo-simulator-post.html" . }}
+          {{- end -}}
 
-    {{- if or .PrevInSection .NextInSection -}}
-    <nav class="post-nav" aria-label="이전 및 다음 리포트">
-      <div>
-        {{- with .NextInSection -}}
-        <a class="post-nav-item" href="{{ .RelPermalink }}">
-          <span class="post-nav-dir">← 최신 리포트</span>
-          <span class="post-nav-title">{{ .Title }}</span>
-        </a>
+          {{ partial "subscribe-cta.html" . }}
+
+          {{- $related := where (where .Site.RegularPages "Section" "posts") "Permalink" "ne" .Permalink -}}
+          {{- if gt (len $related) 0 -}}
+          <section style="margin-top:26px;" aria-labelledby="related-heading">
+            <div class="qti-sec-head">
+              <h3 id="related-heading">관련 리포트</h3>
+              <a href="{{ "posts/" | relURL }}">전체 리포트 →</a>
+            </div>
+            <div class="qti-grid qti-g3">
+              {{- range first 3 $related.ByDate.Reverse -}}
+              <a class="qti-report-card" href="{{ .RelPermalink }}">
+                <span class="qti-badge {{ if $isTender }}qti-b-tender{{ else }}qti-b-ipo{{ end }} mono" style="width:fit-content;">{{ .Date.Format "2006-01-02" }}</span>
+                <strong style="color:var(--ink);font-size:14.5px;line-height:1.4;">{{ .Title | truncate 48 }}</strong>
+                <span class="xs muted">리포트 보기 →</span>
+              </a>
+              {{- end -}}
+            </div>
+          </section>
+          {{- end -}}
+
+          {{ partial "disclaimer.html" . }}
         {{- end -}}
-      </div>
-      <div>
-        {{- with .PrevInSection -}}
-        <a class="post-nav-item" href="{{ .RelPermalink }}">
-          <span class="post-nav-dir">이전 리포트 →</span>
-          <span class="post-nav-title">{{ .Title }}</span>
-        </a>
+      </article>
+
+      {{- /* Sticky Right Rail: TOC + Quick Print/Source Actions + 300x600 AdSense */ -}}
+      <aside class="qti-sticky-rail">
+        {{- if $isPost -}}
+        <div class="qti-toc-card">
+          <div class="qti-toc-title">목차 · CONTENTS</div>
+          <nav class="qti-toc-list" id="qti-toc-list" aria-label="리포트 목차"></nav>
+          <div class="qti-rail-actions">
+            <button type="button" class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" onclick="window.print()">🖨 PDF 리포트 인쇄</button>
+            {{- if and $meta $meta.source_url -}}
+            <a class="qti-btn qti-btn-primary" style="width:100%;font-size:13px;padding:8px 12px;" href="{{ $meta.source_url }}" target="_blank" rel="noopener noreferrer">{{ if $isTender }}나라장터 원문 ↗{{ else }}DART 공시 원문 ↗{{ end }}</a>
+            {{- end -}}
+          </div>
+        </div>
         {{- end -}}
-      </div>
-    </nav>
-    {{- end -}}
-  {{- else -}}
-    <aside class="editorial-slot" aria-label="포털 바로가기">
-      <div class="editorial-slot-label">PORTAL NAVIGATION</div>
-      <h4>{{ .Site.Params.brandName | default "퀀트 & 입찰 인텔리전스 랩" }}</h4>
-      <p>실시간 공모주 수급 분석 및 나라장터 입찰 시방서 요약 리포트를 바로 열람할 수 있습니다.</p>
-      <div class="slot-actions">
-        <a class="btn btn-primary" href="{{ .Site.Home.RelPermalink }}">{{ .Site.Title }} 홈</a>
-        <a class="btn btn-outline" href="{{ "posts/" | relURL }}">전체 리포트</a>
-        <a class="btn btn-outline" href="{{ .Site.Params.hubUrl | default "https://qtilab.com/" }}">허브 포털 ↗</a>
-      </div>
-    </aside>
-  {{- end -}}
-</article>
+        <div class="qti-rail-ad-only">
+          {{ partial "ad-slot.html" (dict "page" . "slot" "sidebar") }}
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
 {{ end }}
