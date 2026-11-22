@@ -8,7 +8,12 @@
 {{- /* Look up structured KPI metadata for current post from data JSON */ -}}
 {{- $meta := false -}}
 {{- if $isPost -}}
-  {{- $items := cond $isTender hugo.Data.tender_summary.items hugo.Data.ipo_summary.items -}}
+  {{- $items := slice -}}
+  {{- if $isTender -}}
+    {{- with hugo.Data.tender_summary -}}{{- $items = .items -}}{{- end -}}
+  {{- else -}}
+    {{- with hugo.Data.ipo_summary -}}{{- $items = .items -}}{{- end -}}
+  {{- end -}}
   {{- range $items -}}
     {{- if eq .slug $.Slug -}}
       {{- $meta = . -}}
