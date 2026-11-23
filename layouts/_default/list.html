@@ -4,6 +4,18 @@
 {{- $pages := .Pages.ByDate.Reverse -}}
 {{- $paginator := .Paginate $pages 18 -}}
 
+{{- /* Build lookup map from tender_summary.json for instant card metadata & 651-item search */ -}}
+{{- $metaMap := dict -}}
+{{- $allTenderItems := slice -}}
+{{- if $isTender -}}
+  {{- with .Site.Data.tender_summary -}}
+    {{- $allTenderItems = .items -}}
+    {{- range .items -}}
+      {{- $metaMap = merge $metaMap (dict .slug .) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
 <section class="qti-sec" data-filter-root>
   <div class="qti-in">
     <div class="qti-eyebrow{{ if $isTender }} is-tender{{ end }}">{{ .Site.Params.trackCode | default "ARCHIVE" }} · {{ if $isTax }}TAXONOMY{{ else }}REPORT ARCHIVE{{ end }}</div>
@@ -14,20 +26,32 @@
       {{- if eq .Section "posts" -}}{{ .Site.Params.heroSummary }}{{- else -}}"{{ .Title }}" 분류에 수록된 정량 분석 및 요약 리포트 목록입니다.{{- end -}}
     </p>
 
-    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;">
-      {{- if .Site.Taxonomies.categories -}}
-      <div class="qti-chips">
-        <a class="qti-chip{{ if eq .Section "posts" }} is-active{{ end }}" href="{{ "posts/" | relURL }}">전체 ({{ len (where .Site.RegularPages "Section" "posts") }})</a>
-        {{- range .Site.Taxonomies.categories.ByCount -}}
-        <a class="qti-chip" href="{{ .Page.RelPermalink }}">{{ .Page.Title }} ({{ .Count }})</a>
-        {{- end -}}
+    {{- /* Phase 2-2: 651개 공고 실시간 발주처·면허코드·지역 인스턴트 검색 & 필터 바 */ -}}
+    {{- if not $isTax -}}
+    <div class="instant-filter-toolbar" role="search" aria-label="공공입찰 아카이브 실시간 발주처 면허코드 지역 검색 및 필터">
+      <div class="qti-chips" role="toolbar" aria-label="입찰 공고 아카이브 빠른 필터 칩">
+        <button type="button" class="qti-chip is-active" data-filter-chip="all">전체 ({{ len (where .Site.RegularPages "Section" "posts") }})</button>
+        <button type="button" class="qti-chip" data-filter-chip="0036">0036 정보통신</button>
+        <button type="button" class="qti-chip" data-filter-chip="1468">1468 소프트웨어</button>
+        <button type="button" class="qti-chip" data-filter-chip="조달청">조달청</button>
+        <button type="button" class="qti-chip" data-filter-chip="대학교">대학교·산학</button>
+        <button type="button" class="qti-chip" data-filter-chip="공사">공사·공단</button>
+        <button type="button" class="qti-chip" data-filter-chip="서울">서울</button>
+        <button type="button" class="qti-chip" data-filter-chip="경기">경기·인천</button>
+        <button type="button" class="qti-chip" data-filter-chip="대전">대전·충청</button>
+        <button type="button" class="qti-chip" data-filter-chip="부산">부산·영남</button>
+        <button type="button" class="qti-chip" data-filter-chip="전국">전국 제한없음</button>
+        <button type="button" class="qti-chip" data-filter-chip="over10">10억 이상</button>
       </div>
-      {{- end -}}
-      <div class="qti-gnb-search" style="margin-left:auto;min-width:220px;">
-        <span aria-hidden="true">🔍</span>
-        <input type="search" id="archive-q" data-filter-search placeholder="현재 페이지 내 검색" aria-label="아카이브 검색" />
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;">
+        <span class="instant-match-pill">표시 <strong class="num" data-filter-count>{{ len $paginator.Pages }}</strong>건</span>
+        <div class="qti-gnb-search" style="min-width:260px;max-width:360px;">
+          <span aria-hidden="true">🔍</span>
+          <input type="search" id="archive-q" data-filter-search placeholder="공고명 · 발주처 · 면허코드(0036, 1468) · 지역 즉시 검색" aria-label="아카이브 실시간 검색" />
+        </div>
       </div>
     </div>
+    {{- end -}}
 
     {{- if $isTax -}}
     <div class="qti-grid qti-g3">
@@ -40,26 +64,78 @@
       {{- end -}}
     </div>
     {{- else -}}
-    <div class="qti-grid qti-g3">
+    <div class="qti-grid qti-g3" data-archive-grid>
       {{- range $idx, $p := $paginator.Pages -}}
       {{- if eq $idx 6 -}}
       <div style="grid-column:1/-1;">{{ partial "ad-slot.html" (dict "page" $ "slot" "in-feed") }}</div>
       {{- end -}}
-      <article class="qti-report-card" data-filter-item data-haystack="{{ $p.Title }} {{ $p.Description }}">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-          <span class="qti-badge {{ if $isTender }}qti-b-tender{{ else }}qti-b-ipo{{ end }} mono">{{ $.Site.Params.trackCode | default "REPORT" }}</span>
+      {{- $pBase := "" -}}
+      {{- with $p.File -}}{{- $pBase = .ContentBaseName -}}{{- end -}}
+      {{- $m := index $metaMap ($p.Slug | default $pBase) -}}
+      {{- if not $m -}}{{- $m = index $metaMap $pBase -}}{{- end -}}
+      {{- $cardTags := delimit ($p.Params.tags | default slice) " " -}}
+      {{- $cardHay := printf "%s %s %s" $p.Title $p.Description $cardTags -}}
+      {{- if $m -}}
+        {{- $over := cond (ge ($m.budget_eok | default 0.0) 10.0) "over10" "" -}}
+        {{- $regAlias := $m.region -}}
+        {{- if or (eq $m.region "대전") (eq $m.region "충남") (eq $m.region "충북") (eq $m.region "세종") -}}{{- $regAlias = printf "%s 대전 충청" $m.region -}}{{- end -}}
+        {{- if or (eq $m.region "부산") (eq $m.region "대구") (eq $m.region "경남") (eq $m.region "경북") (eq $m.region "울산") -}}{{- $regAlias = printf "%s 부산 영남" $m.region -}}{{- end -}}
+        {{- if or (eq $m.region "경기") (eq $m.region "인천") -}}{{- $regAlias = printf "%s 경기 인천" $m.region -}}{{- end -}}
+        {{- $orgTag := "" -}}
+        {{- if in $m.org "조달청" -}}{{- $orgTag = printf "%s 조달청" $orgTag -}}{{- end -}}
+        {{- if or (in $m.org "대학") (in $m.org "산학") (in $m.org "과학기술원") (in $m.org "학교") -}}{{- $orgTag = printf "%s 대학교" $orgTag -}}{{- end -}}
+        {{- if or (in $m.org "공사") (in $m.org "공단") (in $m.org "연구원") (in $m.org "진흥원") (in $m.org "재단") -}}{{- $orgTag = printf "%s 공사" $orgTag -}}{{- end -}}
+        {{- $licTag := "" -}}
+        {{- if or (in $m.license "0036") (in $m.license "정보통신공사업") -}}{{- $licTag = printf "%s 0036 정보통신" $licTag -}}{{- end -}}
+        {{- if or (in $m.license "1468") (in $m.license "소프트웨어사업자") -}}{{- $licTag = printf "%s 1468 소프트웨어" $licTag -}}{{- end -}}
+        {{- $cardTags = printf "%s %s %s %s %s" $cardTags $regAlias $over $orgTag $licTag -}}
+        {{- $cardHay = printf "%s %s %s %s %s %s %s" $cardHay $m.bid_no $m.bid_name $m.org $m.region $m.license $m.budget_label -}}
+      {{- end -}}
+      <article class="qti-report-card" data-filter-item data-tags="{{ $cardTags }}" data-haystack="{{ $cardHay }}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="qti-badge {{ if $isTender }}qti-b-tender{{ else }}qti-b-ipo{{ end }} mono">{{ if $m }}{{ $m.region }} · {{ $m.budget_label }}{{ else }}{{ $.Site.Params.trackCode | default "REPORT" }}{{ end }}</span>
           {{- if not $p.Date.IsZero -}}<time class="xs muted num" datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date.Format "2006-01-02" }}</time>{{- end -}}
         </div>
         <h3><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h3>
-        <p class="sm muted" style="margin:0;flex:1;">{{ ($p.Description | default ($p.Summary | plainify)) | truncate 110 }}</p>
+        <p class="sm muted" style="margin:0;flex:1;">
+          {{- if $m -}}
+          <b>{{ $m.org }}</b> · 면허: {{ $m.license | truncate 48 }} · 하한율 {{ if gt $m.floor_rate 0 }}{{ printf "%.3f%%" $m.floor_rate }}{{ else }}원문확인{{ end }}
+          {{- else -}}
+          {{ ($p.Description | default ($p.Summary | plainify)) | truncate 110 }}
+          {{- end -}}
+        </p>
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;">
-          <span class="xs muted num">읽기 약 {{ cond (lt $p.ReadingTime 1) 1 $p.ReadingTime }}분</span>
+          <span class="xs muted num">{{ if $m }}{{ $m.bid_no }}{{ else }}읽기 약 {{ cond (lt $p.ReadingTime 1) 1 $p.ReadingTime }}분{{ end }}</span>
           <a href="{{ $p.RelPermalink }}" class="xs" style="font-weight:700;">리포트 보기 →</a>
         </div>
       </article>
       {{- end -}}
     </div>
-    <div data-filter-empty hidden style="padding:36px;text-align:center;" class="muted">검색 결과가 없습니다.</div>
+    <div data-filter-empty hidden style="padding:36px;text-align:center;" class="muted">
+      조건에 맞는 공고 리포트가 없습니다. <button type="button" class="qti-btn qti-btn-ghost" style="margin-left:8px;padding:5px 10px;font-size:12px;" data-filter-reset>필터 초기화</button>
+    </div>
+
+    {{- /* Full 651-item compact JSON index on main /posts/ page 1 for instant full-archive card filtering */ -}}
+    {{- if and $isTender (eq .Section "posts") (eq $paginator.PageNumber 1) -}}
+      {{- $compactList := slice -}}
+      {{- range $allTenderItems -}}
+        {{- $over := cond (ge (.budget_eok | default 0.0) 10.0) "over10" "" -}}
+        {{- $regAlias := .region -}}
+        {{- if or (eq .region "대전") (eq .region "충남") (eq .region "충북") (eq .region "세종") -}}{{- $regAlias = printf "%s 대전 충청" .region -}}{{- end -}}
+        {{- if or (eq .region "부산") (eq .region "대구") (eq .region "경남") (eq .region "경북") (eq .region "울산") -}}{{- $regAlias = printf "%s 부산 영남" .region -}}{{- end -}}
+        {{- if or (eq .region "경기") (eq .region "인천") -}}{{- $regAlias = printf "%s 경기 인천" .region -}}{{- end -}}
+        {{- $orgTag := "" -}}
+        {{- if in .org "조달청" -}}{{- $orgTag = printf "%s 조달청" $orgTag -}}{{- end -}}
+        {{- if or (in .org "대학") (in .org "산학") (in .org "과학기술원") (in .org "학교") -}}{{- $orgTag = printf "%s 대학교" $orgTag -}}{{- end -}}
+        {{- if or (in .org "공사") (in .org "공단") (in .org "연구원") (in .org "진흥원") (in .org "재단") -}}{{- $orgTag = printf "%s 공사" $orgTag -}}{{- end -}}
+        {{- $licTag := "" -}}
+        {{- if or (in .license "0036") (in .license "정보통신공사업") -}}{{- $licTag = printf "%s 0036 정보통신" $licTag -}}{{- end -}}
+        {{- if or (in .license "1468") (in .license "소프트웨어사업자") -}}{{- $licTag = printf "%s 1468 소프트웨어" $licTag -}}{{- end -}}
+        {{- $k := printf "%s %s %s %s" $regAlias $over $orgTag $licTag -}}
+        {{- $compactList = $compactList | append (dict "n" .bid_no "t" .bid_name "r" .rel "d" .date "o" .org "g" .region "b" .budget_label "f" .floor_rate "l" .license "s" .summary "k" $k) -}}
+      {{- end -}}
+      {{ printf "<script id=\"g2b-all-tenders-json\" type=\"application/json\">%s</script>" ($compactList | jsonify) | safeHTML }}
+    {{- end -}}
 
     {{- if gt $paginator.TotalPages 1 -}}
     <nav class="qti-pager" aria-label="페이지 이동">

@@ -19,8 +19,21 @@
 {{- $posts := (where .Site.RegularPages "Section" "posts").ByDate.Reverse -}}
 
 {{- if $isTender -}}
-  {{- /* ═══ TRACK B · B1 필터+티커 리스트형 ═══ */ -}}
+  {{- /* ═══ TRACK B · B1 상단 투찰가 시뮬레이터 + 651건 실시간 발주처·면허코드·지역 검색 ═══ */ -}}
   {{- $td := .Site.Data.tender_summary -}}
+  {{- $topItem := false -}}
+  {{- if gt (len $td.items) 0 -}}{{- $topItem = index $td.items 0 -}}{{- end -}}
+  {{- $homeInitBudget := 300000000 -}}
+  {{- $homeInitFloor := 87.745 -}}
+  {{- $homeInitOrg := "조달청 나라장터" -}}
+  {{- $homeInitBidNo := "R26BK" -}}
+  {{- if $topItem -}}
+    {{- if gt (int ($topItem.budget_won | default 0)) 0 -}}{{- $homeInitBudget = int $topItem.budget_won -}}{{- end -}}
+    {{- if gt ($topItem.floor_rate | default 0.0) 0.0 -}}{{- $homeInitFloor = $topItem.floor_rate -}}{{- end -}}
+    {{- $homeInitOrg = $topItem.org | default $homeInitOrg -}}
+    {{- $homeInitBidNo = $topItem.bid_no | default $homeInitBidNo -}}
+  {{- end -}}
+
   <section class="qti-sec" data-filter-root>
     <div class="qti-in">
       <div class="qti-eyebrow is-tender">TRACK B · G2B TENDER INTELLIGENCE</div>
@@ -33,19 +46,156 @@
         <span>수록 <b class="num">{{ len $posts }}건</b></span>
       </div>
 
-      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px;">
-        <div class="qti-chips" role="toolbar" aria-label="입찰 공고 필터">
+      {{- /* Phase 2-1: 상단 독립 배치 — 조달청 복수예가(±2%/±3%) · 낙찰하한율 투찰가 & 공동수급 지분 시뮬레이터 */ -}}
+      <section class="g2b-sim-panel" id="g2b-bid-simulator" data-g2b-simulator data-auto-prefill="false" data-init-budget="{{ $homeInitBudget }}" data-init-floor="{{ printf "%.3f" $homeInitFloor }}" data-init-org="{{ $homeInitOrg }}" data-init-bidno="{{ $homeInitBidNo }}" aria-labelledby="g2b-sim-heading-home">
+        <div class="g2b-sim-head">
+          <div>
+            <span class="qti-badge qti-b-tender mono">G2B BID PRICE &amp; CONSORTIUM SHARE SIMULATOR</span>
+            <h2 class="g2b-sim-title" id="g2b-sim-heading-home">🧮 조달청 복수예가(±2%/±3%) · 낙찰하한율 투찰가 &amp; 공동수급 지분 시뮬레이터</h2>
+            <p class="g2b-sim-sub">기초금액(배정예산), 복수예비가격 사정률(-3.00%~+3.00%), 적격심사 낙찰하한율, 공동수급 지분율을 조합하여 예정가격·투찰 하한선(부가세 제외 공급가액 병기)·5구간 안전 투찰가 매트릭스를 즉시 산출합니다.</p>
+          </div>
+        </div>
+
+        <div class="g2b-sim-prefill" data-sim-prefill-text>
+          💡 빠른 프리셋(1억/3억/5억/10억) 또는 '현재 공고 예산 자동추출' 버튼을 눌러 최신 공고({{ $homeInitBidNo }} · {{ $homeInitOrg }}) 수치를 즉시 불러올 수 있습니다.
+        </div>
+
+        <div class="g2b-sim-grid">
+          {{- /* Control 1: 기초금액 / 배정예산 */ -}}
+          <div class="g2b-ctrl-card">
+            <div class="g2b-ctrl-top">
+              <label for="home-sim-budget">① 기초금액 / 배정예산 (원)</label>
+              <span class="g2b-val-badge" data-sim-budget-readout>약 3억 원 (300,000,000원)</span>
+            </div>
+            <div class="g2b-input-row">
+              <input type="number" id="home-sim-budget" class="g2b-num-input" data-sim-budget min="0" step="10000" value="300000000" aria-label="기초금액 또는 배정예산 원 단위 입력" />
+            </div>
+            <div class="g2b-chip-row">
+              <button type="button" class="g2b-mini-chip" data-budget-preset="100000000">1억</button>
+              <button type="button" class="g2b-mini-chip is-active" data-budget-preset="300000000">3억</button>
+              <button type="button" class="g2b-mini-chip" data-budget-preset="500000000">5억</button>
+              <button type="button" class="g2b-mini-chip" data-budget-preset="1000000000">10억</button>
+              <button type="button" class="g2b-mini-chip" data-budget-preset="auto">현재 공고 예산 자동추출</button>
+            </div>
+          </div>
+
+          {{- /* Control 2: 복수예비가격 사정률 슬라이더 */ -}}
+          <div class="g2b-ctrl-card">
+            <div class="g2b-ctrl-top">
+              <label for="home-sim-rate">② 복수예비가격 사정률 (-3.00% ~ +3.00%)</label>
+              <span class="g2b-val-badge" data-sim-rate-badge>+0.25%</span>
+            </div>
+            <div class="g2b-input-row">
+              <input type="range" id="home-sim-rate" class="g2b-range" data-sim-rate min="-3.00" max="3.00" step="0.05" value="0.25" aria-label="복수예비가격 사정률 슬라이더" />
+              <input type="number" class="g2b-num-input" data-sim-rate-num min="-3.00" max="3.00" step="0.05" value="0.25" style="max-width:86px;" aria-label="사정률 직접 입력" />
+            </div>
+            <div class="g2b-chip-row">
+              <button type="button" class="g2b-mini-chip" data-rate-preset="-1.00">-1.0% 보수</button>
+              <button type="button" class="g2b-mini-chip" data-rate-preset="0.00">0.0% 기준</button>
+              <button type="button" class="g2b-mini-chip" data-rate-preset="0.35">+0.35% 조달청평균</button>
+              <button type="button" class="g2b-mini-chip" data-rate-preset="1.00">+1.0% 공격</button>
+            </div>
+          </div>
+
+          {{- /* Control 3: 적격심사 낙찰하한율 선택 */ -}}
+          <div class="g2b-ctrl-card">
+            <div class="g2b-ctrl-top">
+              <label for="home-sim-floor-sel">③ 적격심사 낙찰하한율 (%)</label>
+              <span class="g2b-val-badge" data-sim-floor-badge>87.745%</span>
+            </div>
+            <div class="g2b-input-row">
+              <select id="home-sim-floor-sel" class="g2b-select" data-sim-floor-select aria-label="적격심사 낙찰하한율 기준 선택">
+                <option value="87.745" selected>일반용역·SI (87.745%)</option>
+                <option value="84.245">물품·제조 (84.245%)</option>
+                <option value="85.495">기술용역 (85.495%)</option>
+                <option value="88.000">소액수의 (88.000%)</option>
+                <option value="custom">직접입력</option>
+              </select>
+              <input type="number" class="g2b-num-input" data-sim-floor-input min="50" max="100" step="0.001" value="87.745" style="max-width:105px;" aria-label="낙찰하한율 직접 입력" />
+            </div>
+            <div class="xs muted">일반용역·SI 87.745% / 물품·제조 84.245% / 기술용역 85.495% / 소액수의 88.000%</div>
+          </div>
+
+          {{- /* Control 4: 공동수급(컨소시엄) 자사 참여 지분율 */ -}}
+          <div class="g2b-ctrl-card">
+            <div class="g2b-ctrl-top">
+              <label for="home-sim-share">④ 공동수급(컨소시엄) 자사 지분율</label>
+              <span class="g2b-val-badge" data-sim-share-badge>100% (단독투찰)</span>
+            </div>
+            <div class="g2b-input-row">
+              <input type="range" id="home-sim-share" class="g2b-range" data-sim-share min="10" max="100" step="5" value="100" aria-label="공동수급 자사 참여 지분율 슬라이더" />
+            </div>
+            <div class="g2b-chip-row">
+              <button type="button" class="g2b-mini-chip is-active" data-share-preset="100">100% 단독</button>
+              <button type="button" class="g2b-mini-chip" data-share-preset="60">60% 대표사</button>
+              <button type="button" class="g2b-mini-chip" data-share-preset="51">51% 지역공동</button>
+              <button type="button" class="g2b-mini-chip" data-share-preset="40">40% 구성원</button>
+              <button type="button" class="g2b-mini-chip" data-share-preset="30">30% 부계약자</button>
+            </div>
+          </div>
+        </div>
+
+        {{- /* Real-time Output Panel */ -}}
+        <div class="g2b-out-grid">
+          <div class="g2b-out-card">
+            <div class="g2b-out-lbl">예상 예정가격 (기초금액 × (1 + 사정률))</div>
+            <div class="g2b-out-val" data-out-expected>300,750,000원</div>
+            <div class="g2b-out-sub" data-out-expected-sub>복수예비가격 추첨 평균 예상치</div>
+          </div>
+          <div class="g2b-out-card is-highlight">
+            <div class="g2b-out-lbl">권장 투찰 하한선 금액 (예정가격 × 낙찰하한율)</div>
+            <div class="g2b-out-val" data-out-bidfloor>263,893,088원</div>
+            <div class="g2b-out-sub" data-out-bidsupply>부가세(VAT) 제외 공급가액: 239,902,807원</div>
+          </div>
+          <div class="g2b-out-card">
+            <div class="g2b-out-lbl">자사 컨소시엄 분담 수주 예상액 (투찰가 × 지분율)</div>
+            <div class="g2b-out-val" data-out-consortium>263,893,088원</div>
+            <div class="g2b-out-sub" data-out-consortium-sub>자사 지분 100% 단독투찰 기준</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+          <strong style="font-size:14px;color:var(--ink);">📊 사정률 5구간(-1.00% ~ +1.00%)별 안전 투찰가 매트릭스 비교표</strong>
+          <span class="xs muted">하한선 미달 투찰 시 적격심사 자동 탈락 · 원 단위 반올림 및 부가세 제외 공급가액 병기</span>
+        </div>
+        <div class="g2b-matrix-wrap">
+          <table class="g2b-matrix-table">
+            <thead>
+              <tr>
+                <th>사정률 구간</th>
+                <th>예상 예정가격 (원)</th>
+                <th>권장 투찰 하한선 (VAT포함)</th>
+                <th>공급가액 (부가세 제외)</th>
+                <th>자사 지분 수주액</th>
+              </tr>
+            </thead>
+            <tbody data-sim-matrix-body></tbody>
+          </table>
+        </div>
+      </section>
+
+      {{- /* Phase 2-2: 651개 공고 실시간 발주처·면허코드·지역 인스턴트 검색 & 필터 바 */ -}}
+      <div class="instant-filter-toolbar" role="search" aria-label="651개 공공입찰 공고 실시간 발주처 면허코드 지역 검색 및 필터">
+        <div class="qti-chips" role="toolbar" aria-label="입찰 공고 빠른 필터 칩">
           <button type="button" class="qti-chip is-active" data-filter-chip="all">전체 공고 ({{ $td.count | default (len $posts) }})</button>
+          <button type="button" class="qti-chip" data-filter-chip="0036">0036 정보통신</button>
+          <button type="button" class="qti-chip" data-filter-chip="1468">1468 소프트웨어</button>
+          <button type="button" class="qti-chip" data-filter-chip="조달청">조달청</button>
+          <button type="button" class="qti-chip" data-filter-chip="대학교">대학교·산학</button>
+          <button type="button" class="qti-chip" data-filter-chip="공사">공사·공단</button>
           <button type="button" class="qti-chip" data-filter-chip="서울">서울</button>
-          <button type="button" class="qti-chip" data-filter-chip="경기">경기</button>
+          <button type="button" class="qti-chip" data-filter-chip="경기">경기·인천</button>
           <button type="button" class="qti-chip" data-filter-chip="대전">대전·충청</button>
           <button type="button" class="qti-chip" data-filter-chip="부산">부산·영남</button>
           <button type="button" class="qti-chip" data-filter-chip="전국">전국 제한없음</button>
           <button type="button" class="qti-chip" data-filter-chip="over10">10억 이상</button>
         </div>
-        <div class="qti-gnb-search" style="margin-left:auto;min-width:220px;">
-          <span aria-hidden="true">🔍</span>
-          <input type="search" data-filter-search placeholder="발주처 · 키워드 즉시 필터" aria-label="입찰 공고 필터 검색" />
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;">
+          <span class="instant-match-pill">매칭 <strong class="num" data-filter-count>{{ len $td.items }}</strong> / {{ len $td.items }}건</span>
+          <div class="qti-gnb-search" style="min-width:280px;max-width:380px;">
+            <span aria-hidden="true">🔍</span>
+            <input type="search" data-filter-search placeholder="공고명 · 발주처(조달청, 대학교, 공사) · 면허(0036, 1468) · 지역 검색" aria-label="입찰 공고 실시간 필터 검색" />
+          </div>
         </div>
       </div>
 
@@ -54,15 +204,15 @@
           {{ partial "ad-slot.html" (dict "page" . "slot" "leaderboard") }}
 
           <div class="qti-sec-head" style="margin-top:8px;">
-            <h2>최신 IT 공공입찰 &amp; 시방서 핵심 브리핑</h2>
-            <span class="xs muted">표시 <strong class="num" data-filter-count>{{ len (first 30 $td.items) }}</strong>건 · <a href="{{ "posts/" | relURL }}">전체 {{ len $posts }}건 아카이브 →</a></span>
+            <h2>최신 IT 공공입찰 &amp; 시방서 핵심 브리핑 (651건 실시간 필터)</h2>
+            <span class="xs muted">표시 <strong class="num">{{ len $td.items }}</strong>건 전수 색인 · <a href="{{ "posts/" | relURL }}">카드형 아카이브 보기 →</a></span>
           </div>
 
           <div class="qti-table-wrap">
             <table class="qti-table is-resp" data-sortable>
               <thead>
                 <tr>
-                  <th data-sort="str">공고명 · 시방서 핵심 요약</th>
+                  <th data-sort="str">공고명 · 시방서 핵심 요약 · 필수면허</th>
                   <th class="mh" data-sort="str">발주처 ↕</th>
                   <th class="mh" data-sort="str">지역</th>
                   <th class="r" data-sort="num">추정가격 ↕</th>
@@ -70,12 +220,23 @@
                 </tr>
               </thead>
               <tbody>
-                {{- range first 30 $td.items -}}
+                {{- range $td.items -}}
                 {{- $over := cond (ge .budget_eok 10.0) "over10" "" -}}
-                <tr data-filter-item data-tags="{{ .region }} {{ $over }}" data-haystack="{{ .bid_name }} {{ .org }} {{ .region }} {{ .summary }} {{ .license }}">
+                {{- $regAlias := .region -}}
+                {{- if or (eq .region "대전") (eq .region "충남") (eq .region "충북") (eq .region "세종") -}}{{- $regAlias = printf "%s 대전 충청" .region -}}{{- end -}}
+                {{- if or (eq .region "부산") (eq .region "대구") (eq .region "경남") (eq .region "경북") (eq .region "울산") -}}{{- $regAlias = printf "%s 부산 영남" .region -}}{{- end -}}
+                {{- if or (eq .region "경기") (eq .region "인천") -}}{{- $regAlias = printf "%s 경기 인천" .region -}}{{- end -}}
+                {{- $orgTag := "" -}}
+                {{- if in .org "조달청" -}}{{- $orgTag = printf "%s 조달청" $orgTag -}}{{- end -}}
+                {{- if or (in .org "대학") (in .org "산학") (in .org "과학기술원") (in .org "학교") -}}{{- $orgTag = printf "%s 대학교" $orgTag -}}{{- end -}}
+                {{- if or (in .org "공사") (in .org "공단") (in .org "연구원") (in .org "진흥원") (in .org "재단") -}}{{- $orgTag = printf "%s 공사" $orgTag -}}{{- end -}}
+                {{- $licTag := "" -}}
+                {{- if or (in .license "0036") (in .license "정보통신공사업") -}}{{- $licTag = printf "%s 0036 정보통신" $licTag -}}{{- end -}}
+                {{- if or (in .license "1468") (in .license "소프트웨어사업자") -}}{{- $licTag = printf "%s 1468 소프트웨어" $licTag -}}{{- end -}}
+                <tr data-filter-item data-tags="{{ $regAlias }} {{ $over }} {{ $orgTag }} {{ $licTag }}" data-haystack="{{ .bid_name }} {{ .bid_no }} {{ .org }} {{ .region }} {{ .summary }} {{ .license }} {{ .budget_label }}">
                   <td>
                     <a href="{{ .rel }}" style="font-weight:700;color:var(--ink);">{{ .bid_name }}</a>
-                    <div class="xs muted num" style="margin-top:2px;">{{ .bid_no }} · 발행 {{ .date }}</div>
+                    <div class="xs muted num" style="margin-top:2px;">{{ .bid_no }} · 발행 {{ .date }} · 면허: {{ .license | truncate 44 }}</div>
                     {{- with .summary -}}
                     <div class="qti-spec-preview"><b>시방서 핵심:</b> {{ . }}</div>
                     {{- end -}}
@@ -158,107 +319,11 @@
 
       <div class="qti-main-rail">
         <div>
-          {{- /* 2주 발행 캘린더 (실제 최신 게시물 매핑) */ -}}
-          <div class="qti-card" style="margin-bottom:18px;">
-            <div class="qti-sec-head" style="margin-bottom:10px;">
-              <h3>최근 2주 DART IPO 리포트 발행 캘린더</h3>
-              <span class="xs muted num">2026년 11월 · DART 공시 연동</span>
-            </div>
-            <div class="qti-cal" aria-label="최근 2주 공모주 공시 일정">
-              <div class="dow">월</div><div class="dow">화</div><div class="dow">수</div><div class="dow">목</div><div class="dow">금</div><div class="dow">토</div><div class="dow">일</div>
-              {{- range $d := seq 9 22 -}}
-                {{- $dayStr := printf "2026-11-%02d" $d -}}
-                <div{{ if eq $d 22 }} class="is-today"{{ end }}>
-                  <div class="cal-d">{{ $d }}</div>
-                  {{- range $ipo.items -}}
-                    {{- if eq .date $dayStr -}}
-                      <a class="cal-ev" href="{{ .rel }}" title="{{ .title }}">{{ .corp }}</a>
-                    {{- end -}}
-                  {{- end -}}
-                </div>
-              {{- end -}}
-            </div>
-          </div>
-
           {{ partial "ad-slot.html" (dict "page" . "slot" "leaderboard") }}
-
-          <div class="qti-sec-head" style="margin-top:8px;">
-            <h2>DART 공모주 수급 분석표</h2>
-            <span class="xs muted">표시 <strong class="num" data-filter-count>{{ len $ipo.items }}</strong>건 · 열 제목 클릭 시 정렬</span>
-          </div>
-
-          <div class="qti-table-wrap">
-            <table class="qti-table is-resp" data-sortable>
-              <thead>
-                <tr>
-                  <th data-sort="str">종목명 ↕</th>
-                  <th class="mh" data-sort="str">발행일 ↕</th>
-                  <th class="r mh" data-sort="str">공모가</th>
-                  <th class="r" data-sort="num">기관 경쟁률 ↕</th>
-                  <th class="r mh" data-sort="num">의무보유확약 ↕</th>
-                  <th class="r mh" data-sort="num">상장일 유통 ↕</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{- range $ipo.items -}}
-                {{- $hl := cond (ge .lock_num 30.0) "highlock" "" -}}
-                {{- $lf := cond (and (gt .flt_num 0.0) (lt .flt_num 30.0)) "lowfloat" "" -}}
-                {{- $cf := cond (gt .comp_num 0.0) "confirmed" "" -}}
-                <tr data-filter-item data-tags="{{ $hl }} {{ $lf }} {{ $cf }}" data-haystack="{{ .corp }} {{ .code }} {{ .underwriter }} {{ .title }}">
-                  <td class="nowrap">
-                    <a href="{{ .rel }}" style="font-weight:700;color:var(--ink);">{{ .corp }}</a>
-                    {{- with .code }} <span class="xs muted num">{{ . }}</span>{{ end -}}
-                    <div class="xs muted">{{ .underwriter }}</div>
-                  </td>
-                  <td class="mh num muted nowrap">{{ .date }}</td>
-                  <td class="r mh num nowrap">{{ .band }}</td>
-                  <td class="r num nowrap" data-val="{{ .comp_num }}"><strong>{{ if gt .comp_num 0 }}{{ lang.FormatNumber 1 .comp_num }}:1{{ else }}수요예측 전{{ end }}</strong></td>
-                  <td class="r num mh nowrap" data-val="{{ .lock_num }}">{{ if gt .lock_num 0 }}<span class="qti-badge qti-b-ipo mono">{{ printf "%.1f%%" .lock_num }}</span>{{ else }}<span class="muted">—</span>{{ end }}</td>
-                  <td class="r num mh nowrap" data-val="{{ .flt_num }}">{{ if gt .flt_num 0 }}{{ printf "%.1f%%" .flt_num }}{{ else }}<span class="muted">—</span>{{ end }}</td>
-                </tr>
-                {{- end -}}
-              </tbody>
-            </table>
-            <div data-filter-empty hidden style="padding:28px;text-align:center;" class="muted sm">
-              조건에 맞는 공모주 리포트가 없습니다. <button type="button" class="qti-btn qti-btn-ghost" style="margin-left:8px;padding:5px 10px;font-size:12px;" data-filter-reset>필터 초기화</button>
-            </div>
-          </div>
-
-          <div class="qti-grid qti-g2" style="margin-top:20px;">
-            <div class="qti-card">
-              <div class="qti-sec-head" style="margin-bottom:8px;"><h3>기관 경쟁률 상위 5</h3><span class="qti-badge qti-b-ipo mono">CVD-SAFE</span></div>
-              <img src="{{ "images/charts/ipo_comp_top5.svg" | relURL }}" alt="기관 수요예측 경쟁률 상위 5 아이소메트릭 차트" loading="lazy" />
-            </div>
-            <div class="qti-card">
-              <div class="qti-sec-head" style="margin-bottom:8px;"><h3>확약×경쟁률 과거 시초가 분포</h3><span class="qti-badge qti-b-dday mono">BACKTEST</span></div>
-              <img src="{{ "images/charts/ipo_backtest_heatmap.svg" | relURL }}" alt="확약 비율 및 경쟁률 구간별 과거 시초가 참고 분포 히트맵" loading="lazy" />
-            </div>
-          </div>
-
           {{ partial "ipo-simulator-home.html" . }}
           {{ partial "subscribe-cta.html" . }}
           {{ partial "disclaimer.html" . }}
         </div>
-
-        <aside class="qti-sticky-rail">
-          <div class="qti-card">
-            <div class="qti-toc-title">최근 DART 수급 리포트</div>
-            <div class="qti-row-list">
-              {{- range first 5 $ipo.items -}}
-              <a href="{{ .rel }}">
-                <div class="qti-row-main">
-                  <div class="qti-row-title">{{ .corp }}</div>
-                  <div class="qti-row-sub num">{{ .date }} · 확약 {{ printf "%.1f%%" .lock_num }}</div>
-                </div>
-                <span class="xs num" style="font-weight:700;color:var(--primary);">{{ if gt .comp_num 0 }}{{ lang.FormatNumber 0 .comp_num }}:1{{ else }}예측전{{ end }}</span>
-              </a>
-              {{- end -}}
-            </div>
-          </div>
-          <div class="qti-rail-ad-only">
-            {{ partial "ad-slot.html" (dict "page" . "slot" "sidebar") }}
-          </div>
-        </aside>
       </div>
     </div>
   </section>

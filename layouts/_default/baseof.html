@@ -1,5 +1,7 @@
 {{- $adsense := strings.TrimSpace (.Site.Params.adsenseClient | default "") -}}
 {{- $ga4 := strings.TrimSpace (.Site.Params.ga4MeasurementId | default "") -}}
+{{- $naverVer := strings.TrimSpace (.Site.Params.naverSiteVerification | default "") -}}
+{{- $bingVer := strings.TrimSpace (.Site.Params.bingSiteVerification | default "") -}}
 {{- $brand := .Site.Params.brandName | default "퀀트 & 입찰 인텔리전스 랩" -}}
 {{- $hubUrl := .Site.Params.hubUrl | default "https://qtilab.com/" -}}
 {{- $isTender := eq (.Site.Params.accentRole | default "ipo") "tender" -}}
@@ -13,6 +15,8 @@
     {{- $desc = (.Summary | plainify | truncate 150) | default (printf "%s | %s" .Title .Site.Title) -}}
   {{- end -}}
 {{- end -}}
+{{- /* Phase 1-2: Crawl Budget & Index Hygiene — index posts/home/policy pages, noindex taxonomy & term archives */ -}}
+{{- $isTaxOrTerm := or (eq .Kind "taxonomy") (eq .Kind "term") (eq .Kind "taxonomyTerm") (ne (.Data.Singular | default "") "") (in .RelPermalink "/tags/") (in .RelPermalink "/categories/") -}}
 <!DOCTYPE html>
 <html lang="ko" data-theme="light">
 <head>
@@ -20,7 +24,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ if .IsHome }}{{ .Site.Title }} | {{ $brand }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
   <meta name="description" content="{{ $desc }}" />
+  {{- if $isTaxOrTerm -}}
+  <meta name="robots" content="noindex, follow" />
+  <meta name="googlebot" content="noindex, follow" />
+  {{- else -}}
+  <meta name="robots" content="index, follow" />
+  {{- end -}}
   <link rel="canonical" href="{{ .Permalink }}" />
+  {{- /* Phase 2-3: Naver Search Advisor & Bing Webmaster Meta Tag Slots */ -}}
+  {{- if $naverVer -}}
+  <meta name="naver-site-verification" content="{{ $naverVer }}" />
+  {{- else -}}
+  <meta name="naver-site-verification" content="" data-webmaster-slot="naver-search-advisor" />
+  {{- end -}}
+  {{- if $bingVer -}}
+  <meta name="msvalidate.01" content="{{ $bingVer }}" />
+  {{- else -}}
+  <meta name="msvalidate.01" content="" data-webmaster-slot="bing-webmaster" />
+  {{- end -}}
   <meta property="og:locale" content="ko_KR" />
   <meta property="og:site_name" content="{{ $brand }} — {{ .Site.Title }}" />
   <meta property="og:type" content="{{ if and .IsPage (eq .Section "posts") }}article{{ else }}website{{ end }}" />
@@ -39,9 +60,118 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" />
   <link rel="stylesheet" href="{{ "css/tokens.css" | relURL }}" />
   <link rel="stylesheet" href="{{ "css/components.css" | relURL }}" />
+  <style>
+    /* Wave 7: Dynamic FAQ Accordion, Inline Related Callout, G2B Bid Price Simulator & Instant Filter Bar */
+    .report-faq { margin-top: 26px; padding: 20px 22px; border-radius: 12px; background: var(--surface, #FFFFFF); border: 1px solid var(--border, #E2E8F0); }
+    .report-faq-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .report-faq-head h3 { margin: 0; font-size: 17px; font-weight: 800; color: var(--ink, #0F172A); }
+    .faq-item { border: 1px solid var(--border, #E2E8F0); border-radius: 9px; background: var(--bg, #F8FAFC); margin-bottom: 10px; overflow: hidden; }
+    .faq-item:last-child { margin-bottom: 0; }
+    .faq-item summary { cursor: pointer; padding: 12px 15px; font-weight: 700; font-size: 14.5px; color: var(--ink, #0F172A); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: "▾"; font-size: 13px; color: var(--muted, #64748B); transition: transform 0.15s ease; }
+    .faq-item[open] summary::after { transform: rotate(180deg); }
+    .faq-answer { padding: 10px 15px 13px; font-size: 13.8px; line-height: 1.68; color: var(--text, #334155); border-top: 1px dashed var(--border, #E2E8F0); }
+    .inline-related-callout { margin: 22px 0; padding: 15px 18px; border-radius: 11px; background: var(--surface, #F8FAFC); border: 1px solid var(--border, #CBD5E1); border-left: 4px solid var(--tender, #6D4AFF); }
+    .inline-related-title { font-size: 14px; font-weight: 800; color: var(--ink, #0F172A); margin: 0 0 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .inline-related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .inline-related-link { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 8px; background: var(--bg, #FFFFFF); border: 1px solid var(--border, #E2E8F0); text-decoration: none !important; transition: transform 0.14s ease, border-color 0.14s ease; }
+    .inline-related-link:hover { transform: translateY(-1px); border-color: var(--tender, #6D4AFF); }
+    .instant-filter-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; background: var(--surface, #FFFFFF); border: 1px solid var(--border, #E2E8F0); margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+    .instant-match-pill { font-size: 12.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; background: var(--tender-soft, #EFEBFF); color: var(--tender, #6D4AFF); border: 1px solid var(--border, #E2E8F0); white-space: nowrap; }
+    /* G2B Bid Price & Consortium Share Simulator */
+    .g2b-sim-panel { background: var(--surface, #FFFFFF); border: 1px solid var(--border, #E1E6E4); border-top: 4px solid var(--tender, #6D4AFF); border-radius: 14px; padding: 22px; margin: 22px 0; box-shadow: var(--shadow-sm); }
+    .g2b-sim-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .g2b-sim-title { font-size: clamp(18px, 2.2vw, 22px); font-weight: 800; color: var(--ink, #062A2E); margin: 4px 0 6px; }
+    .g2b-sim-sub { font-size: 13.5px; color: var(--muted, #50605F); margin: 0; line-height: 1.55; }
+    .g2b-sim-prefill { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-radius: 10px; background: var(--tender-soft, #EFEBFF); color: var(--ink, #062A2E); font-size: 13px; font-weight: 600; margin-bottom: 16px; border: 1px solid rgba(109, 74, 255, 0.24); }
+    .g2b-sim-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .g2b-ctrl-card { background: var(--bg, #F7F8F6); border: 1px solid var(--border, #E1E6E4); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .g2b-ctrl-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink, #062A2E); }
+    .g2b-val-badge { font-family: var(--font-num, monospace); font-size: 12.5px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--tender-soft, #EFEBFF); color: var(--tender, #6D4AFF); }
+    .g2b-input-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .g2b-num-input, .g2b-select { border: 1px solid var(--border-strong, #C5CFCC); border-radius: 8px; padding: 7px 10px; font: 700 14px var(--font-num, monospace); background: var(--surface, #FFFFFF); color: var(--text, #0E1A1C); flex: 1; min-width: 120px; }
+    .g2b-range { width: 100%; accent-color: var(--tender, #6D4AFF); cursor: pointer; }
+    .g2b-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .g2b-mini-chip { border: 1px solid var(--border, #E1E6E4); background: var(--surface, #FFFFFF); color: var(--text, #0E1A1C); border-radius: 999px; padding: 4px 10px; font-size: 11.8px; font-weight: 600; cursor: pointer; transition: all 0.14s ease; }
+    .g2b-mini-chip:hover { border-color: var(--tender, #6D4AFF); color: var(--tender, #6D4AFF); }
+    .g2b-mini-chip.is-active { background: var(--tender, #6D4AFF); color: #FFFFFF; border-color: var(--tender, #6D4AFF); }
+    .g2b-out-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .g2b-out-card { background: var(--bg, #F7F8F6); border: 1px solid var(--border, #E1E6E4); border-radius: 10px; padding: 14px; }
+    .g2b-out-card.is-highlight { background: var(--tender-soft, #EFEBFF); border-color: var(--tender, #6D4AFF); }
+    .g2b-out-lbl { font-size: 12px; font-weight: 700; color: var(--muted, #50605F); margin-bottom: 4px; }
+    .g2b-out-val { font: 800 clamp(17px, 2vw, 22px) var(--font-num, monospace); color: var(--ink, #062A2E); line-height: 1.25; word-break: break-all; }
+    .g2b-out-card.is-highlight .g2b-out-val { color: var(--tender, #6D4AFF); }
+    .g2b-out-sub { font-size: 12px; color: var(--subtle, #6E7F7D); margin-top: 5px; line-height: 1.45; }
+    .g2b-matrix-wrap { overflow-x: auto; border: 1px solid var(--border, #E1E6E4); border-radius: 10px; background: var(--surface, #FFFFFF); }
+    .g2b-matrix-table { width: 100%; border-collapse: collapse; font-size: 12.8px; }
+    .g2b-matrix-table th { background: var(--surface-alt, #EFF2F0); color: var(--muted, #50605F); padding: 9px 11px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border, #E1E6E4); white-space: nowrap; }
+    .g2b-matrix-table td { padding: 9px 11px; border-bottom: 1px solid var(--border, #E1E6E4); font-family: var(--font-num, monospace); white-space: nowrap; }
+    .g2b-matrix-table tr.is-current { background: var(--tender-soft, #EFEBFF); font-weight: 700; }
+    @media (max-width: 768px) {
+      .g2b-sim-grid, .g2b-out-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
   {{- if and .IsPage (eq .Section "posts") -}}
     {{- $ld := dict "@context" "https://schema.org" "@type" "TechArticle" "headline" .Title "description" $desc "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") "mainEntityOfPage" .Permalink "publisher" (dict "@type" "Organization" "name" $brand "url" $hubUrl) -}}
     {{ printf "<script type=\"application/ld+json\">%s</script>" ($ld | jsonify) | safeHTML }}
+    {{- /* Phase 1-3: Dynamic Post-Specific FAQPage JSON-LD (1:1 matched with #report-faq in single.html) */ -}}
+    {{- $fMeta := false -}}
+    {{- $baseName := "" -}}
+    {{- with .File -}}{{- $baseName = .ContentBaseName -}}{{- end -}}
+    {{- with .Site.Data.tender_summary -}}
+      {{- range .items -}}
+        {{- if or (eq .slug $.Slug) (and (ne $baseName "") (eq .slug $baseName)) (eq .title $.Title) -}}
+          {{- $fMeta = . -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $bidNo := "나라장터 원문 참조" -}}
+    {{- $bidName := .Title -}}
+    {{- $org := "발주기관" -}}
+    {{- $region := "공고문 기준" -}}
+    {{- $budgetWon := 0 -}}
+    {{- $budgetLabel := "원문 표 참조" -}}
+    {{- $floorRate := 87.745 -}}
+    {{- $license := "공고문 참가자격 참조" -}}
+    {{- $specSummary := $desc -}}
+    {{- if $fMeta -}}
+      {{- $bidNo = $fMeta.bid_no | default $bidNo -}}
+      {{- $bidName = $fMeta.bid_name | default $bidName -}}
+      {{- $org = $fMeta.org | default $org -}}
+      {{- $region = $fMeta.region | default $region -}}
+      {{- $budgetWon = int ($fMeta.budget_won | default 0) -}}
+      {{- $budgetLabel = $fMeta.budget_label | default $budgetLabel -}}
+      {{- if gt ($fMeta.floor_rate | default 0.0) 0.0 -}}
+        {{- $floorRate = $fMeta.floor_rate -}}
+      {{- end -}}
+      {{- $license = $fMeta.license | default $license -}}
+      {{- $specSummary = $fMeta.summary | default $specSummary -}}
+    {{- end -}}
+    {{- $tagStr := delimit (.Params.tags | default (slice "공공입찰" "나라장터")) ", " -}}
+    {{- $catStr := delimit (.Params.categories | default (slice "공공입찰 인텔리전스")) ", " -}}
+    {{- $budgetFull := cond (gt $budgetWon 0) (printf "%s원(%s)" (lang.FormatNumber 0 $budgetWon) $budgetLabel) $budgetLabel -}}
+    {{- $floorRateStr := printf "%.3f%%" $floorRate -}}
+    {{- $refFloorWon := 0 -}}
+    {{- $refPlus035Won := 0 -}}
+    {{- if gt $budgetWon 0 -}}
+      {{- $refFloorWon = int (math.Round (mul (float $budgetWon) (div $floorRate 100.0))) -}}
+      {{- $refPlus035Won = int (math.Round (mul (mul (float $budgetWon) 1.0035) (div $floorRate 100.0))) -}}
+    {{- end -}}
+    {{- $refFloorStr := cond (gt $refFloorWon 0) (printf "%s원(사정률 0.00%% 기준) ~ %s원(조달청 평균 사정률 +0.35%% 기준)" (lang.FormatNumber 0 $refFloorWon) (lang.FormatNumber 0 $refPlus035Won)) "본문 하단 시뮬레이터 참조" -}}
+    {{- $q1 := printf "[%s] %s 「%s」 입찰의 배정예산(추정가격)과 핵심 시방서 요구사항은 무엇인가요?" $bidNo $org $bidName -}}
+    {{- $a1 := printf "%s에서 발주한 「%s」(공고번호 %s, 분류: %s / 태그: %s) 사업의 배정예산(추정가격)은 %s입니다. 시방서 핵심 요구 스펙은 '%s'이며, 상세 요약은 %s에서 확인할 수 있습니다." $org $bidName $bidNo $catStr $tagStr $budgetFull $specSummary $desc -}}
+    {{- $q2 := printf "「%s」 공고에 투찰하기 위한 필수 참가자격 면허(업종코드)와 지역제한 기준은 어떻게 되나요?" $bidName -}}
+    {{- $a2 := printf "본 공고(%s, 발주처: %s)의 필수 보유 면허 및 자격 요건은 '%s'이며, 발주 지역 제한 기준은 '%s'입니다. 공동수급(컨소시엄) 허용 여부 및 세부 실적 요건은 입찰 마감 전 나라장터(G2B) 원문 공고문과 과업지시서를 반드시 대조해야 합니다." $bidNo $org $license $region -}}
+    {{- $q3 := printf "%s 「%s」의 적격심사 낙찰하한율(%s) 적용 시 예상 투찰 하한선 금액은 얼마인가요?" $org $bidName $floorRateStr -}}
+    {{- $a3 := printf "배정예산 %s에 발주처 참고 낙찰하한율 %s를 적용한 예상 투찰 하한선 금액은 %s입니다. 복수예비가격 사정률(±2%%~±3%%) 변동과 공동수급 자사 지분율에 따른 정밀 투찰가 및 부가세 제외 공급가액은 본 리포트 하단 '조달청 복수예가·낙찰하한율 투찰가 & 공동수급 지분 시뮬레이터'에서 실시간 계산할 수 있습니다." $budgetFull $floorRateStr $refFloorStr -}}
+    {{- $faqEntities := slice
+      (dict "@type" "Question" "name" $q1 "acceptedAnswer" (dict "@type" "Answer" "text" $a1))
+      (dict "@type" "Question" "name" $q2 "acceptedAnswer" (dict "@type" "Answer" "text" $a2))
+      (dict "@type" "Question" "name" $q3 "acceptedAnswer" (dict "@type" "Answer" "text" $a3))
+    -}}
+    {{- $faqLd := dict "@context" "https://schema.org" "@type" "FAQPage" "mainEntity" $faqEntities -}}
+    {{ printf "<script type=\"application/ld+json\">%s</script>" ($faqLd | jsonify) | safeHTML }}
   {{- else if .IsHome -}}
     {{- $ld := dict "@context" "https://schema.org" "@type" "WebSite" "name" .Site.Title "alternateName" $brand "description" $desc "url" .Site.BaseURL -}}
     {{ printf "<script type=\"application/ld+json\">%s</script>" ($ld | jsonify) | safeHTML }}
@@ -70,5 +200,373 @@
   {{- if not $isTender -}}
   <script defer src="{{ "js/ipo-quant-sim.js" | relURL }}"></script>
   {{- end -}}
+  <script>
+  /* Wave 7: G2B Bid Price & Consortium Share Interactive Simulator + 651-Post Instant Multi-Keyword Filter */
+  (function () {
+    "use strict";
+
+    function fmtWon(n) {
+      var v = Math.round(Number(n) || 0);
+      return v.toLocaleString("ko-KR") + "원";
+    }
+    function fmtEokMan(n) {
+      var v = Math.round(Number(n) || 0);
+      if (v <= 0) return "0원";
+      var eok = Math.floor(v / 100000000);
+      var man = Math.round((v % 100000000) / 10000);
+      if (eok > 0 && man > 0) return "약 " + eok.toLocaleString("ko-KR") + "억 " + man.toLocaleString("ko-KR") + "만 원";
+      if (eok > 0) return "약 " + eok.toLocaleString("ko-KR") + "억 원";
+      return "약 " + man.toLocaleString("ko-KR") + "만 원";
+    }
+
+    /* Parse current post's markdown table in single.html for budget(원) & floor_rate(%) */
+    function parsePostTableMeta(simEl) {
+      var parsed = {
+        budget: Number(simEl.dataset.initBudget) || 0,
+        floor: Number(simEl.dataset.initFloor) || 0,
+        org: simEl.dataset.initOrg || "",
+        bidNo: simEl.dataset.initBidno || "",
+        fromDomTable: false
+      };
+      var tables = document.querySelectorAll(".qti-prose table");
+      tables.forEach(function (tbl) {
+        tbl.querySelectorAll("tr").forEach(function (tr) {
+          var cells = tr.querySelectorAll("td, th");
+          if (cells.length < 2) return;
+          var k = (cells[0].textContent || "").trim();
+          var v = (cells[1].textContent || "").trim();
+          var c2 = cells[2] ? (cells[2].textContent || "").trim() : "";
+          if (/추정가격|배정예산|기초금액/.test(k)) {
+            var numStr = v.replace(/[^0-9]/g, "");
+            var numVal = parseInt(numStr, 10);
+            if (numVal > 100000) {
+              parsed.budget = numVal;
+              parsed.fromDomTable = true;
+            }
+          }
+          if (/발주처/.test(k)) {
+            if (v) parsed.org = v;
+            var fm = (v + " " + c2).match(/([0-9]{2}\.[0-9]{2,3})\s*%/);
+            if (fm) {
+              parsed.floor = parseFloat(fm[1]);
+              parsed.fromDomTable = true;
+            }
+          }
+          if (/공고번호/.test(k) && v) {
+            parsed.bidNo = v;
+          }
+          if (/참고\s*하한|낙찰\s*하한율/.test(k)) {
+            var fm2 = (v + " " + c2).match(/([0-9]{2}\.[0-9]{2,3})\s*%/);
+            if (fm2) {
+              parsed.floor = parseFloat(fm2[1]);
+              parsed.fromDomTable = true;
+            }
+          }
+        });
+      });
+      /* Fallback on home page: grab first row in tender table if auto button clicked */
+      if (!parsed.budget) {
+        var firstRow = document.querySelector("tr[data-filter-item]");
+        if (firstRow) {
+          var bCell = firstRow.querySelector("td[data-val]");
+          var tds = firstRow.querySelectorAll("td[data-val]");
+          if (bCell && Number(bCell.dataset.val) > 0) parsed.budget = Number(bCell.dataset.val);
+          if (tds.length > 1 && Number(tds[1].dataset.val) > 0) parsed.floor = Number(tds[1].dataset.val);
+        }
+      }
+      if (!parsed.budget) parsed.budget = 300000000;
+      if (!parsed.floor) parsed.floor = 87.745;
+      return parsed;
+    }
+
+    function initSimulator(simEl) {
+      var budgetInput = simEl.querySelector("[data-sim-budget]");
+      var budgetReadout = simEl.querySelector("[data-sim-budget-readout]");
+      var budgetPresets = simEl.querySelectorAll("[data-budget-preset]");
+      var rateSlider = simEl.querySelector("[data-sim-rate]");
+      var rateNum = simEl.querySelector("[data-sim-rate-num]");
+      var rateBadge = simEl.querySelector("[data-sim-rate-badge]");
+      var ratePresets = simEl.querySelectorAll("[data-rate-preset]");
+      var floorSelect = simEl.querySelector("[data-sim-floor-select]");
+      var floorInput = simEl.querySelector("[data-sim-floor-input]");
+      var floorBadge = simEl.querySelector("[data-sim-floor-badge]");
+      var shareSlider = simEl.querySelector("[data-sim-share]");
+      var shareBadge = simEl.querySelector("[data-sim-share-badge]");
+      var sharePresets = simEl.querySelectorAll("[data-share-preset]");
+      var prefillBanner = simEl.querySelector("[data-sim-prefill-text]");
+
+      var outExpected = simEl.querySelector("[data-out-expected]");
+      var outExpectedSub = simEl.querySelector("[data-out-expected-sub]");
+      var outBidFloor = simEl.querySelector("[data-out-bidfloor]");
+      var outBidSupply = simEl.querySelector("[data-out-bidsupply]");
+      var outConsortium = simEl.querySelector("[data-out-consortium]");
+      var outConsortiumSub = simEl.querySelector("[data-out-consortium-sub]");
+      var matrixBody = simEl.querySelector("[data-sim-matrix-body]");
+
+      function syncFloorSelect(val) {
+        if (!floorSelect) return;
+        var fixed = ["87.745", "84.245", "85.495", "88.000"];
+        var s = Number(val).toFixed(3);
+        if (fixed.indexOf(s) !== -1) {
+          floorSelect.value = s;
+        } else {
+          floorSelect.value = "custom";
+        }
+      }
+
+      function recalc() {
+        var budget = Math.max(0, Number(budgetInput ? budgetInput.value : 300000000) || 0);
+        var rate = Number(rateSlider ? rateSlider.value : 0.25);
+        if (isNaN(rate)) rate = 0.25;
+        var floor = Math.max(50, Math.min(100, Number(floorInput ? floorInput.value : 87.745) || 87.745));
+        var share = Math.max(10, Math.min(100, Number(shareSlider ? shareSlider.value : 100) || 100));
+
+        if (budgetReadout) budgetReadout.textContent = fmtEokMan(budget) + " (" + fmtWon(budget) + ")";
+        var rateSign = rate > 0 ? "+" : "";
+        if (rateBadge) rateBadge.textContent = rateSign + rate.toFixed(2) + "%";
+        if (rateNum && document.activeElement !== rateNum) rateNum.value = rate.toFixed(2);
+        if (floorBadge) floorBadge.textContent = floor.toFixed(3) + "%";
+        if (shareBadge) shareBadge.textContent = share + "% " + (share === 100 ? "(단독투찰)" : share >= 50 ? "(공동수급 대표사)" : "(공동수급 구성원)");
+
+        var expectedPrice = Math.round(budget * (1 + rate / 100));
+        var diffWon = expectedPrice - budget;
+        var bidFloor = Math.round(expectedPrice * (floor / 100));
+        var bidSupply = Math.round(bidFloor / 1.1);
+        var ourShareWon = Math.round(bidFloor * (share / 100));
+        var ourShareSupply = Math.round(ourShareWon / 1.1);
+        var partnerShareWon = bidFloor - ourShareWon;
+
+        if (outExpected) outExpected.textContent = fmtWon(expectedPrice);
+        if (outExpectedSub) {
+          outExpectedSub.textContent = fmtEokMan(expectedPrice) + " · 기초금액 대비 " + (diffWon >= 0 ? "+" : "") + fmtWon(diffWon) + " (사정률 " + rateSign + rate.toFixed(2) + "%)";
+        }
+        if (outBidFloor) outBidFloor.textContent = fmtWon(bidFloor);
+        if (outBidSupply) {
+          outBidSupply.textContent = "부가세(VAT) 제외 공급가액: " + fmtWon(bidSupply) + " · 낙찰하한율 " + floor.toFixed(3) + "% 적용";
+        }
+        if (outConsortium) outConsortium.textContent = fmtWon(ourShareWon);
+        if (outConsortiumSub) {
+          outConsortiumSub.textContent = "자사 지분 " + share + "% (공급가액 " + fmtWon(ourShareSupply) + ") · 타사 분담(" + (100 - share) + "%): " + fmtWon(partnerShareWon);
+        }
+
+        ratePresets.forEach(function (btn) {
+          var pv = parseFloat(btn.dataset.ratePreset);
+          btn.classList.toggle("is-active", Math.abs(pv - rate) < 0.001);
+        });
+        sharePresets.forEach(function (btn) {
+          var sv = parseInt(btn.dataset.sharePreset, 10);
+          btn.classList.toggle("is-active", sv === share);
+        });
+        budgetPresets.forEach(function (btn) {
+          if (btn.dataset.budgetPreset === "auto") return;
+          var bv = parseInt(btn.dataset.budgetPreset, 10);
+          btn.classList.toggle("is-active", bv === budget);
+        });
+
+        if (matrixBody) {
+          var steps = [
+            { r: -1.00, label: "-1.00% (보수 하단)" },
+            { r: -0.50, label: "-0.50% (중하단)" },
+            { r: 0.00, label: "0.00% (기초금액 기준)" },
+            { r: 0.35, label: "+0.35% (조달청 평균)" },
+            { r: 1.00, label: "+1.00% (공격 상단)" }
+          ];
+          var html = "";
+          steps.forEach(function (st) {
+            var ep = Math.round(budget * (1 + st.r / 100));
+            var bf = Math.round(ep * (floor / 100));
+            var bs = Math.round(bf / 1.1);
+            var cs = Math.round(bf * (share / 100));
+            var isCur = Math.abs(st.r - rate) < 0.03;
+            html += "<tr" + (isCur ? " class=\"is-current\"" : "") + ">" +
+              "<td>" + st.label + "</td>" +
+              "<td>" + fmtWon(ep) + "</td>" +
+              "<td><strong>" + fmtWon(bf) + "</strong></td>" +
+              "<td>" + fmtWon(bs) + "</td>" +
+              "<td>" + fmtWon(cs) + " (" + share + "%)</td>" +
+              "</tr>";
+          });
+          matrixBody.innerHTML = html;
+        }
+      }
+
+      function applyAutoPrefill() {
+        var meta = parsePostTableMeta(simEl);
+        if (budgetInput) budgetInput.value = String(meta.budget);
+        if (floorInput) floorInput.value = Number(meta.floor).toFixed(3);
+        syncFloorSelect(meta.floor);
+        if (prefillBanner) {
+          var tag = meta.bidNo ? "[" + meta.bidNo + "] " : "";
+          var org = meta.org ? meta.org + " · " : "";
+          prefillBanner.textContent = "📌 " + tag + org + "공고 표 데이터 자동 프리셋 적용됨 — 기초금액 " + fmtWon(meta.budget) + " · 낙찰하한율 " + Number(meta.floor).toFixed(3) + "%";
+        }
+        recalc();
+      }
+
+      if (budgetInput) budgetInput.addEventListener("input", recalc);
+      budgetPresets.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var v = btn.dataset.budgetPreset;
+          if (v === "auto") {
+            applyAutoPrefill();
+            btn.classList.add("is-active");
+          } else {
+            if (budgetInput) budgetInput.value = v;
+            budgetPresets.forEach(function (b) { if (b.dataset.budgetPreset === "auto") b.classList.remove("is-active"); });
+            recalc();
+          }
+        });
+      });
+      if (rateSlider) {
+        rateSlider.addEventListener("input", function () {
+          if (rateNum) rateNum.value = Number(rateSlider.value).toFixed(2);
+          recalc();
+        });
+      }
+      if (rateNum) {
+        rateNum.addEventListener("input", function () {
+          var rv = Math.max(-3, Math.min(3, parseFloat(rateNum.value) || 0));
+          if (rateSlider) rateSlider.value = String(rv);
+          recalc();
+        });
+      }
+      ratePresets.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var rv = parseFloat(btn.dataset.ratePreset);
+          if (rateSlider) rateSlider.value = String(rv);
+          if (rateNum) rateNum.value = rv.toFixed(2);
+          recalc();
+        });
+      });
+      if (floorSelect) {
+        floorSelect.addEventListener("change", function () {
+          if (floorSelect.value !== "custom" && floorInput) {
+            floorInput.value = floorSelect.value;
+            recalc();
+          } else if (floorInput) {
+            floorInput.focus();
+          }
+        });
+      }
+      if (floorInput) {
+        floorInput.addEventListener("input", function () {
+          syncFloorSelect(floorInput.value);
+          recalc();
+        });
+      }
+      if (shareSlider) shareSlider.addEventListener("input", recalc);
+      sharePresets.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (shareSlider) shareSlider.value = btn.dataset.sharePreset;
+          recalc();
+        });
+      });
+
+      if (simEl.dataset.autoPrefill === "true") {
+        applyAutoPrefill();
+      } else {
+        recalc();
+      }
+    }
+
+    document.querySelectorAll("[data-g2b-simulator]").forEach(initSimulator);
+
+    /* Enhanced Instant Multi-Token Filter & Full 651-Post Archive Search Support */
+    document.querySelectorAll("[data-filter-root]").forEach(function (root) {
+      var searchInput = root.querySelector("[data-filter-search]");
+      var chips = root.querySelectorAll("[data-filter-chip]");
+      var countEl = root.querySelector("[data-filter-count]");
+      var emptyEl = root.querySelector("[data-filter-empty]");
+      var resetBtn = root.querySelector("[data-filter-reset]");
+      var archiveGrid = root.querySelector("[data-archive-grid]");
+      var pagerEl = root.querySelector(".qti-pager");
+      var allJsonEl = document.getElementById("g2b-all-tenders-json");
+      var allDataset = null;
+      if (allJsonEl) {
+        try { allDataset = JSON.parse(allJsonEl.textContent || "[]"); } catch (_) { allDataset = null; }
+      }
+      var initialGridHtml = archiveGrid ? archiveGrid.innerHTML : "";
+      var activeChip = "all";
+
+      function matchItem(hay, tags, chip, tokens) {
+        var chipOk = chip === "all" || tags.indexOf(chip) !== -1 || hay.indexOf(chip) !== -1;
+        if (!chipOk) return false;
+        for (var i = 0; i < tokens.length; i++) {
+          if (tokens[i] && hay.indexOf(tokens[i]) === -1 && tags.indexOf(tokens[i]) === -1) return false;
+        }
+        return true;
+      }
+
+      function applyEnhancedFilter() {
+        var q = (searchInput ? searchInput.value : "").trim().toLowerCase();
+        var tokens = q ? q.split(/\s+/) : [];
+
+        /* If on list.html archive with full 651 JSON index and user filters/searches, search all 651 items */
+        if (archiveGrid && allDataset && (activeChip !== "all" || q.length > 0)) {
+          var matched = [];
+          allDataset.forEach(function (it) {
+            var hay = ((it.t || "") + " " + (it.o || "") + " " + (it.g || "") + " " + (it.l || "") + " " + (it.s || "") + " " + (it.n || "") + " " + (it.b || "")).toLowerCase();
+            var tags = (it.k || "").toLowerCase();
+            if (matchItem(hay, tags, activeChip, tokens)) matched.push(it);
+          });
+          if (countEl) countEl.textContent = String(matched.length);
+          if (emptyEl) emptyEl.hidden = matched.length > 0;
+          if (pagerEl) pagerEl.hidden = true;
+          var cardsHtml = "";
+          matched.slice(0, 60).forEach(function (it) {
+            var fl = it.f > 0 ? Number(it.f).toFixed(3) + "%" : "원문확인";
+            cardsHtml += "<article class=\"qti-report-card\" data-filter-item>" +
+              "<div style=\"display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;\">" +
+              "<span class=\"qti-badge qti-b-tender mono\">" + (it.g || "전국") + " · " + (it.b || "-") + "</span>" +
+              "<time class=\"xs muted num\">" + (it.d || "") + "</time>" +
+              "</div>" +
+              "<h3><a href=\"" + it.r + "\">" + it.t + "</a></h3>" +
+              "<p class=\"sm muted\" style=\"margin:0;flex:1;\"><b>" + (it.o || "") + "</b> · 면허: " + (it.l || "공고문 참조") + " · 하한율 " + fl + "</p>" +
+              "<div style=\"display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;\">" +
+              "<span class=\"xs muted num\">" + (it.n || "") + "</span>" +
+              "<a href=\"" + it.r + "\" class=\"xs\" style=\"font-weight:700;\">리포트 보기 →</a>" +
+              "</div></article>";
+          });
+          archiveGrid.innerHTML = cardsHtml;
+          return;
+        } else if (archiveGrid && allDataset && activeChip === "all" && !q) {
+          archiveGrid.innerHTML = initialGridHtml;
+          if (pagerEl) pagerEl.hidden = false;
+        }
+
+        var items = root.querySelectorAll("[data-filter-item]");
+        var shown = 0;
+        items.forEach(function (el) {
+          var hay = (el.dataset.haystack || el.textContent || "").toLowerCase();
+          var tags = (el.dataset.tags || "").toLowerCase();
+          var ok = matchItem(hay, tags, activeChip, tokens);
+          el.hidden = !ok;
+          if (ok) shown++;
+        });
+        if (countEl) countEl.textContent = String(shown);
+        if (emptyEl) emptyEl.hidden = shown > 0;
+      }
+
+      chips.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          activeChip = (btn.dataset.filterChip || "all").toLowerCase();
+          chips.forEach(function (c) { c.classList.toggle("is-active", c === btn); });
+          applyEnhancedFilter();
+        });
+      });
+      if (searchInput) {
+        searchInput.addEventListener("input", applyEnhancedFilter);
+      }
+      if (resetBtn) {
+        resetBtn.addEventListener("click", function () {
+          activeChip = "all";
+          if (searchInput) searchInput.value = "";
+          chips.forEach(function (c, i) { c.classList.toggle("is-active", i === 0); });
+          applyEnhancedFilter();
+        });
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
