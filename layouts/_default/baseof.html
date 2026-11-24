@@ -31,16 +31,12 @@
   <meta name="robots" content="index, follow" />
   {{- end -}}
   <link rel="canonical" href="{{ .Permalink }}" />
-  {{- /* Phase 2-3: Naver Search Advisor & Bing Webmaster Meta Tag Slots */ -}}
-  {{- if $naverVer -}}
-  <meta name="naver-site-verification" content="{{ $naverVer }}" />
-  {{- else -}}
-  <meta name="naver-site-verification" content="" data-webmaster-slot="naver-search-advisor" />
+  {{- /* Phase 2-3: Naver Search Advisor & Bing Webmaster Meta Tag Slots (rendered only when configured) */ -}}
+  {{- with $naverVer -}}
+  <meta name="naver-site-verification" content="{{ . }}" />
   {{- end -}}
-  {{- if $bingVer -}}
-  <meta name="msvalidate.01" content="{{ $bingVer }}" />
-  {{- else -}}
-  <meta name="msvalidate.01" content="" data-webmaster-slot="bing-webmaster" />
+  {{- with $bingVer -}}
+  <meta name="msvalidate.01" content="{{ . }}" />
   {{- end -}}
   <meta property="og:locale" content="ko_KR" />
   <meta property="og:site_name" content="{{ $brand }} — {{ .Site.Title }}" />
