@@ -22,6 +22,7 @@ enableRobotsTXT = true
 [params]
   adsenseClient = "ca-pub-6939017300505908"
   ga4MeasurementId = "G-2SCVZHNK8C"
+  naverSiteVerification = "437c46727e031cbd83b7d462508028dc62b49d29"
   brandName = "퀀트 & 입찰 인텔리전스 랩"
   brandEn = "Quant & Tender Intelligence Lab"
   hubUrl = "https://qtilab.com/"
