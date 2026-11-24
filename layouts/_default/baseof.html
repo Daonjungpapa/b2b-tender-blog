@@ -24,7 +24,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ if .IsHome }}{{ .Site.Title }} | {{ $brand }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
   <meta name="description" content="{{ $desc }}" />
-  {{- if $isTaxOrTerm -}}
+  {{- if or $isTaxOrTerm .Params.noindex -}}
   <meta name="robots" content="noindex, follow" />
   <meta name="googlebot" content="noindex, follow" />
   {{- else -}}

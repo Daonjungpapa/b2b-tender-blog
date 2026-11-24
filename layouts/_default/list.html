@@ -1,7 +1,7 @@
 {{ define "main" }}
 {{- $isTender := eq (.Site.Params.accentRole | default "ipo") "tender" -}}
 {{- $isTax := eq .Kind "taxonomy" -}}
-{{- $pages := .Pages.ByDate.Reverse -}}
+{{- $pages := (where .Pages "Params.noindex" "!=" true).ByDate.Reverse -}}
 {{- $paginator := .Paginate $pages 18 -}}
 
 {{- /* Build lookup map from tender_summary.json for instant card metadata & 651-item search */ -}}
@@ -30,7 +30,7 @@
     {{- if not $isTax -}}
     <div class="instant-filter-toolbar" role="search" aria-label="공공입찰 아카이브 실시간 발주처 면허코드 지역 검색 및 필터">
       <div class="qti-chips" role="toolbar" aria-label="입찰 공고 아카이브 빠른 필터 칩">
-        <button type="button" class="qti-chip is-active" data-filter-chip="all">전체 ({{ len (where .Site.RegularPages "Section" "posts") }})</button>
+        <button type="button" class="qti-chip is-active" data-filter-chip="all">전체 ({{ len (where (where .Site.RegularPages "Section" "posts") "Params.noindex" "!=" true) }})</button>
         <button type="button" class="qti-chip" data-filter-chip="0036">0036 정보통신</button>
         <button type="button" class="qti-chip" data-filter-chip="1468">1468 소프트웨어</button>
         <button type="button" class="qti-chip" data-filter-chip="조달청">조달청</button>

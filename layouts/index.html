@@ -16,7 +16,7 @@
 
 {{ define "main" }}
 {{- $isTender := eq (.Site.Params.accentRole | default "ipo") "tender" -}}
-{{- $posts := (where .Site.RegularPages "Section" "posts").ByDate.Reverse -}}
+{{- $posts := (where (where .Site.RegularPages "Section" "posts") "Params.noindex" "!=" true).ByDate.Reverse -}}
 
 {{- if $isTender -}}
   {{- /* ═══ TRACK B · B1 상단 투찰가 시뮬레이터 + 651건 실시간 발주처·면허코드·지역 검색 ═══ */ -}}
