@@ -10,8 +10,9 @@
     </a>
     <nav class="qti-nav" aria-label="주요 메뉴">
       <a href="{{ $ipoUrl }}"{{ if not $isTender }} class="is-active" aria-current="page"{{ end }}>IPO 레이더</a>
-      <a href="{{ $tdUrl }}" class="is-tender{{ if $isTender }} is-active{{ end }}"{{ if $isTender }} aria-current="page"{{ end }}>입찰 인텔리전스</a>
+      <a href="{{ $tdUrl }}" class="is-tender{{ if and $isTender (ne .RelPermalink "/guide/") }} is-active{{ end }}"{{ if and $isTender (ne .RelPermalink "/guide/") }} aria-current="page"{{ end }}>입찰 인텔리전스</a>
       <a href="{{ "posts/" | relURL }}">전체 리포트</a>
+      <a href="{{ "guide/" | relURL }}"{{ if eq .RelPermalink "/guide/" }} class="is-tender is-active" aria-current="page"{{ end }} data-engage-track="guide_nav_click">입찰 실무 가이드</a>
       <a href="{{ $hub }}b2b/#excel">엑셀 구독</a>
       <a href="{{ $hub }}b2b/">B2B</a>
     </nav>
@@ -27,7 +28,8 @@
 <nav class="qti-drawer" id="qti-mobile-drawer" aria-label="모바일 메뉴" hidden>
   <a href="{{ $hub }}">허브 포털 (qtilab.com)</a>
   <a href="{{ $ipoUrl }}"{{ if not $isTender }} class="is-active"{{ end }}>IPO 퀀트 수급 레이더</a>
-  <a href="{{ $tdUrl }}"{{ if $isTender }} class="is-active"{{ end }}>공공입찰 시방서 인텔리전스</a>
+  <a href="{{ $tdUrl }}"{{ if and $isTender .IsHome }} class="is-active"{{ end }}>공공입찰 시방서 인텔리전스</a>
+  <a href="{{ "guide/" | relURL }}"{{ if eq .RelPermalink "/guide/" }} class="is-active"{{ end }} data-engage-track="guide_drawer_click">📘 낙찰하한율·업종코드(0036·1468) 실무 가이드</a>
   <a href="{{ "posts/" | relURL }}">전체 리포트 아카이브</a>
   <a href="{{ $hub }}b2b/#excel">마스터 엑셀 구독</a>
   <a href="{{ $hub }}b2b/">B2B 폐쇄망 구축 문의</a>

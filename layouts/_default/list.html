@@ -4,7 +4,7 @@
 {{- $pages := (where .Pages "Params.noindex" "!=" true).ByDate.Reverse -}}
 {{- $paginator := .Paginate $pages 18 -}}
 
-{{- /* Build lookup map from tender_summary.json for instant card metadata & 651-item search */ -}}
+{{- /* Build lookup map from tender_summary.json for instant card metadata & archive search */ -}}
 {{- $metaMap := dict -}}
 {{- $allTenderItems := slice -}}
 {{- if $isTender -}}
@@ -19,14 +19,20 @@
 <section class="qti-sec" data-filter-root>
   <div class="qti-in">
     <div class="qti-eyebrow{{ if $isTender }} is-tender{{ end }}">{{ .Site.Params.trackCode | default "ARCHIVE" }} · {{ if $isTax }}TAXONOMY{{ else }}REPORT ARCHIVE{{ end }}</div>
-    <h1 style="font-size:clamp(26px,3.2vw,34px);margin-bottom:8px;">
+    <h1 style="font-size:clamp(24px,3.2vw,34px);margin-bottom:8px;">
       {{- if eq .Section "posts" -}}전체 리포트 아카이브{{- else -}}{{ .Title | default .Site.Title }}{{- end -}}
     </h1>
-    <p class="muted" style="margin:0 0 18px;max-width:72ch;">
+    <p class="muted" style="margin:0 0 12px;max-width:72ch;">
       {{- if eq .Section "posts" -}}{{ .Site.Params.heroSummary }}{{- else -}}"{{ .Title }}" 분류에 수록된 정량 분석 및 요약 리포트 목록입니다.{{- end -}}
     </p>
+    {{- if $isTender -}}
+    <div class="g2b-hero-actions">
+      <a href="{{ "guide/" | relURL }}" class="g2b-guide-pill" data-engage-track="guide_cta_click" data-engage-label="archive_header">📘 2026 낙찰하한율(87.745%)·업종코드(0036·1468) 실무 가이드 →</a>
+      <a href="{{ .Site.Home.RelPermalink }}#top6-briefing" class="qti-badge qti-b-dday mono" style="padding:7px 12px;font-size:12.5px;text-decoration:none;">🔥 오늘의 고액 Top-6 브리핑 →</a>
+    </div>
+    {{- end -}}
 
-    {{- /* Phase 2-2: 651개 공고 실시간 발주처·면허코드·지역 인스턴트 검색 & 필터 바 */ -}}
+    {{- /* Instant Search & Quick Filter Bar (Swipeable Single Row on Mobile <=640px) */ -}}
     {{- if not $isTax -}}
     <div class="instant-filter-toolbar" role="search" aria-label="공공입찰 아카이브 실시간 발주처 면허코드 지역 검색 및 필터">
       <div class="qti-chips" role="toolbar" aria-label="입찰 공고 아카이브 빠른 필터 칩">
@@ -43,9 +49,9 @@
         <button type="button" class="qti-chip" data-filter-chip="전국">전국 제한없음</button>
         <button type="button" class="qti-chip" data-filter-chip="over10">10억 이상</button>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;width:100%;max-width:460px;justify-content:flex-end;">
         <span class="instant-match-pill">표시 <strong class="num" data-filter-count>{{ len $paginator.Pages }}</strong>건</span>
-        <div class="qti-gnb-search" style="min-width:260px;max-width:360px;">
+        <div class="instant-search-box">
           <span aria-hidden="true">🔍</span>
           <input type="search" id="archive-q" data-filter-search placeholder="공고명 · 발주처 · 면허코드(0036, 1468) · 지역 즉시 검색" aria-label="아카이브 실시간 검색" />
         </div>
@@ -115,7 +121,7 @@
       조건에 맞는 공고 리포트가 없습니다. <button type="button" class="qti-btn qti-btn-ghost" style="margin-left:8px;padding:5px 10px;font-size:12px;" data-filter-reset>필터 초기화</button>
     </div>
 
-    {{- /* Full 651-item compact JSON index on main /posts/ page 1 for instant full-archive card filtering */ -}}
+    {{- /* Full curated compact JSON index on main /posts/ page 1 for instant full-archive card filtering */ -}}
     {{- if and $isTender (eq .Section "posts") (eq $paginator.PageNumber 1) -}}
       {{- $compactList := slice -}}
       {{- range $allTenderItems -}}
