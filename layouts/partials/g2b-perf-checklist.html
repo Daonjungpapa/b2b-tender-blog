@@ -1,0 +1,127 @@
+<section class="g2b-sim-panel" id="g2b-perf-checklist" aria-labelledby="g2b-perf-heading">
+  <div class="g2b-sim-head">
+    <div>
+      <span class="qti-badge qti-b-tender mono">INTERACTIVE DOCUMENT CHECKLIST · 2026</span>
+      <h2 class="g2b-sim-title" id="g2b-perf-heading">✅ 실적증명서 발급 경로 진단 &amp; 반려 방지 체크리스트</h2>
+      <p class="g2b-sim-sub">내 사업 유형을 선택해 발급 포털을 확인하고, 제출 전 6대 반려 방지 항목을 직접 체크하세요. (체크 상태는 현재 브라우저에 자동 저장됩니다.)</p>
+    </div>
+  </div>
+
+  <div class="g2b-ctrl-card" style="margin-bottom:14px;">
+    <div class="g2b-ctrl-top">
+      <span>① 내 실적 유형 선택 (발급 포털 즉시 안내)</span>
+      <span class="g2b-val-badge" id="pc-path-badge">공공 일반 (나라장터)</span>
+    </div>
+    <div class="g2b-chip-row">
+      <button type="button" class="g2b-mini-chip is-active" data-pc-path="g2b">🏛️ 공공 일반 (나라장터)</button>
+      <button type="button" class="g2b-mini-chip" data-pc-path="kosa">💻 SW사업 (1468 · KOSA)</button>
+      <button type="button" class="g2b-mini-chip" data-pc-path="kica">📡 정보통신공사 (0036 · KICA)</button>
+      <button type="button" class="g2b-mini-chip" data-pc-path="priv">🏢 민간(사기업) 실적</button>
+    </div>
+    <div id="pc-path-detail" style="font-size:13.2px;line-height:1.55;color:var(--ink);padding:10px 12px;border-radius:8px;background:var(--tender-soft,#EFEBFF);border:1px solid rgba(109,74,255,0.22);">
+      <b>발급처:</b> 나라장터(g2b.go.kr) → [계약실적검색] → [실적증명요청서작성(신규)] · <b>소요:</b> 발주기관 담당자 승인까지 1~5영업일
+    </div>
+  </div>
+
+  <div class="g2b-ctrl-card">
+    <div class="g2b-ctrl-top">
+      <span>② 제출 전 6대 반려 방지 자가점검</span>
+      <span class="g2b-val-badge" id="pc-progress-badge">0 / 6 완료</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;" id="pc-list">
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-pc-item="c1" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>이행 완료(준공) 기준일 확인:</b> 진행 중인 계약이 아닌 입찰공고일 기준 검수·준공 완료 건인가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-pc-item="c2" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>산정 기간(최근 3년 vs 5년) 일치:</b> 공고문이 요구하는 실적 인정 기간 내 완료된 계약인가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-pc-item="c3" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>공동수급 지분율 분리 기재:</b> 컨소시엄 수행 건은 전체 사업비가 아닌 자사 출자비율 금액만 기재했는가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-pc-item="c4" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>VAT 포함/제외 기준 대조:</b> 공고문 실적 기준(추정가격·VAT 제외 여부)과 증명서 금액 기준이 일치하는가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-pc-item="c5" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>민간 실적 증빙 세트 구비:</b> 민간 실적 제출 시 발주처 확인서 외에 <b>계약서 + 세금계산서 사본</b>을 함께 첨부했는가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-pc-item="c6" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>발급 승인 리드타임 확보:</b> 마감 최소 5영업일 전에 나라장터·KOSA·KICA 승인 요청을 완료했는가?</span>
+      </label>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("g2b-perf-checklist");
+  if (!root) return;
+
+  var pathInfo = {
+    g2b: {
+      badge: "공공 일반 (나라장터)",
+      html: "<b>발급처:</b> 나라장터(g2b.go.kr) → [계약실적검색] → [실적증명요청서작성(신규)] · <b>소요:</b> 발주기관 담당자 승인까지 1~5영업일"
+    },
+    kosa: {
+      badge: "SW사업 (1468 · KOSA)",
+      html: "<b>발급처:</b> 한국소프트웨어산업협회 SW산업정보종합관리시스템(swit.or.kr) → [사업수행실적 관리신청] · <b>민간 증빙:</b> 계약서 사본 + 세금계산서 사본 필수 · <b>소요:</b> 3~7영업일"
+    },
+    kica: {
+      badge: "정보통신공사 (0036 · KICA)",
+      html: "<b>발급처:</b> 한국정보통신공사협회(kica.or.kr · ICTIS) 실적신고 및 발급 · <b>민간 증빙:</b> 발주자 실적증명서 + 세금계산서 사본 (국세청 온라인 연동 지원)"
+    },
+    priv: {
+      badge: "민간(사기업) 실적",
+      html: "<b>제출 방식:</b> 공고문 별지 서식에 발주처 법인인감/직인 날인 + <b>계약서 사본 + 세금계산서(전자세금계산서 합계표) + 거래명세서/이체내역</b> 세트 구비 필수"
+    }
+  };
+
+  var pBtns = root.querySelectorAll("[data-pc-path]");
+  pBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.dataset.pcPath;
+      pBtns.forEach(function (x) { x.classList.toggle("is-active", x.dataset.pcPath === k); });
+      if (pathInfo[k]) {
+        document.getElementById("pc-path-badge").textContent = pathInfo[k].badge;
+        document.getElementById("pc-path-detail").innerHTML = pathInfo[k].html;
+      }
+      if (typeof window.trackQtiEngage === "function") {
+        window.trackQtiEngage("guide_checklist_toggle", "path_" + k, 400);
+      }
+    });
+  });
+
+  var STORE_KEY = "qti_g2b_perf_checks_v1";
+  var boxes = root.querySelectorAll("[data-pc-item]");
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch (_) { return {}; }
+  }
+  function saveState(st) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(st)); } catch (_) {}
+  }
+  function updateBadge() {
+    var done = 0;
+    boxes.forEach(function (cb) { if (cb.checked) done++; });
+    document.getElementById("pc-progress-badge").textContent = done + " / " + boxes.length + " 완료";
+  }
+  var st = loadState();
+  boxes.forEach(function (cb) {
+    if (st[cb.dataset.pcItem]) cb.checked = true;
+    cb.addEventListener("change", function () {
+      st[cb.dataset.pcItem] = cb.checked;
+      saveState(st);
+      updateBadge();
+      if (typeof window.trackQtiEngage === "function") {
+        window.trackQtiEngage("guide_checklist_toggle", cb.dataset.pcItem + ":" + (cb.checked ? "1" : "0"), 250);
+      }
+    });
+  });
+  updateBadge();
+})();
+</script>

@@ -9,7 +9,8 @@
 {{- $meta := false -}}
 {{- $baseName := "" -}}
 {{- with .File -}}{{- $baseName = .ContentBaseName -}}{{- end -}}
-{{- $isGuide := eq $baseName "guide" -}}
+{{- $isGuide := or (eq $baseName "guide") (.Params.isGuide | default false) -}}
+{{- $guideType := (.Params.guideType | default "hub") -}}
 {{- if $isPost -}}
   {{- $items := slice -}}
   {{- if $isTender -}}
@@ -62,7 +63,7 @@
         <nav class="qti-breadcrumb" aria-label="현재 위치">
           <a href="{{ .Site.Home.RelPermalink }}">홈</a>
           <span>›</span>
-          {{- if $isPost -}}<a href="{{ "posts/" | relURL }}">전체 리포트</a><span>›</span>{{- end -}}
+          {{- if $isPost -}}<a href="{{ "posts/" | relURL }}">전체 리포트</a><span>›</span>{{- else if and $isGuide (ne $baseName "guide") -}}<a href="{{ "guide/" | relURL }}">입찰 실무 가이드</a><span>›</span>{{- end -}}
           <span>{{ .Title | truncate 42 }}</span>
         </nav>
 
@@ -73,7 +74,13 @@
             </span>
             <span class="qti-badge qti-b-done mono">읽기 약 {{ $readTime }}분</span>
             {{- if or (and $isPost $meta) $isGuide -}}
-            <a href="#g2b-bid-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_sim_jump">🧮 투찰가 시뮬레이터 ↓</a>
+              {{- if and $isGuide (eq $guideType "scoring") -}}
+              <a href="#g2b-score-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_score_sim_jump">🧮 적격·협상 점수 계산기 ↓</a>
+              {{- else if and $isGuide (eq $guideType "performance") -}}
+              <a href="#g2b-perf-checklist" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_perf_chk_jump">✅ 반려 방지 체크리스트 ↓</a>
+              {{- else -}}
+              <a href="#g2b-bid-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_sim_jump">🧮 투찰가 시뮬레이터 ↓</a>
+              {{- end -}}
             <a href="#report-faq" class="qti-badge qti-b-ipo mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_faq_jump">❓ 핵심 Q&amp;A ↓</a>
             {{- end -}}
           </div>
@@ -144,8 +151,17 @@
         {{ partial "operations-note.html" . }}
         {{- end }}
 
+        {{- if and $isPost $isTender -}}
+          {{ partial "g2b-contextual-guides.html" (dict "page" . "meta" $meta) }}
+        {{- end -}}
+
         {{- if or $isPost $isGuide -}}
-          {{- /* G2B Bid Price & Consortium Share Simulator (Auto Pre-filled on Posts, Interactive Default on /guide/) */ -}}
+          {{- if and $isGuide (eq $guideType "scoring") -}}
+            {{ partial "g2b-score-simulator.html" . }}
+          {{- else if and $isGuide (eq $guideType "performance") -}}
+            {{ partial "g2b-perf-checklist.html" . }}
+          {{- end -}}
+          {{- /* G2B Bid Price & Consortium Share Simulator (Auto Pre-filled on Posts, Interactive Default on /guide/ Hub) */ -}}
           {{- $initBudget := 300000000 -}}
           {{- $initFloor := 87.745 -}}
           {{- $initOrg := "조달청 기준" -}}
@@ -167,7 +183,7 @@
             {{- $initBudgetLabel = $meta.budget_label | default $initBudgetLabel -}}
           {{- end -}}
 
-          {{- if $isTender -}}
+          {{- if and $isTender (or $isPost (eq $guideType "hub")) -}}
           <section class="g2b-sim-panel" id="g2b-bid-simulator" data-g2b-simulator data-auto-prefill="{{ if $isPost }}true{{ else }}false{{ end }}" data-init-budget="{{ $initBudget }}" data-init-floor="{{ printf "%.3f" $initFloor }}" data-init-org="{{ $initOrg }}" data-init-bidno="{{ $initBidNo }}" aria-labelledby="g2b-sim-heading-post">
             <div class="g2b-sim-head">
               <div>
@@ -318,7 +334,7 @@
               </div>
             </div>
           </section>
-          {{- else -}}
+          {{- else if not $isTender -}}
             {{ partial "report-3d-kpi.html" . }}
             {{- if in .Title "266690" -}}
               {{ partial "ipo-alpha-266690.html" . }}
@@ -363,9 +379,17 @@
           {{- else if $isGuide -}}
             <section class="report-faq" id="report-faq" aria-labelledby="report-faq-heading">
               <div class="report-faq-head">
-                <h3 id="report-faq-heading">❓ 조달청 낙찰하한율 · 업종코드(0036·1468) 실무 자주 묻는 질문</h3>
+                <h3 id="report-faq-heading">❓ {{ if .Params.faq }}실무 자주 묻는 질문 (FAQ){{ else }}조달청 낙찰하한율 · 업종코드(0036·1468) 실무 자주 묻는 질문{{ end }}</h3>
                 <span class="qti-badge qti-b-tender mono">SCHEMA.ORG FAQPAGE 연동</span>
               </div>
+              {{- with .Params.faq -}}
+                {{- range $i, $item := . -}}
+                <details class="faq-item"{{ if eq $i 0 }} open{{ end }}>
+                  <summary>{{ $item.q }}</summary>
+                  <div class="faq-answer">{{ $item.a }}</div>
+                </details>
+                {{- end -}}
+              {{- else -}}
               <details class="faq-item" open>
                 <summary>2026 조달청 일반용역·SI 및 물품 적격심사 낙찰하한율은 몇 %인가요?</summary>
                 <div class="faq-answer">조달청 적격심사 다빈도 기준 일반용역·SI 유지관리는 <b>87.745%</b>, 물품 제조·구매는 <b>84.245%</b>, 기술용역은 <b>85.495%~87.745%</b>, 소액수의 견적입찰은 <b>88.000%</b>가 적용됩니다. 추정가격 구간과 발주기관 예규(국가계약법·지방계약법)에 따라 달라질 수 있으므로 공고문 원문을 최종 확인하십시오.</div>
@@ -382,6 +406,7 @@
                 <summary>정보통신공사업(0036)과 소프트웨어사업자(1468)를 동시에 요구하는 공고는 어떻게 참여하나요?</summary>
                 <div class="faq-answer">두 면허를 모두 보유한 기업은 단독 투찰이 가능하며, 단일 면허만 보유한 기업은 공고문에서 공동수급(분담이행 또는 혼합방식) 허용 여부를 확인해 <code>0036</code> 보유사와 <code>1468</code> 보유사가 컨소시엄으로 분담 참여할 수 있습니다.</div>
               </details>
+              {{- end -}}
             </section>
           {{- end -}}
 
@@ -395,7 +420,7 @@
             </div>
             <div class="qti-grid qti-g3">
               {{- range $related -}}
-              <a class="qti-report-card" href="{{ .RelPermalink }}" data-engage-track="related_card_click" data-engage-label="{{ .Slug }}">
+              <a class="qti-report-card" href="{{ .RelPermalink }}" data-engage-track="{{ if $isGuide }}guide_to_post_click{{ else }}related_card_click{{ end }}" data-engage-label="{{ .Slug }}">
                 <span class="qti-badge {{ if $isTender }}qti-b-tender{{ else }}qti-b-ipo{{ end }} mono" style="width:fit-content;">{{ .Date.Format "2006-01-02" }}</span>
                 <strong style="color:var(--ink);font-size:14.5px;line-height:1.4;">{{ .Title | truncate 54 }}</strong>
                 <span class="xs muted">시방서 &amp; 투찰가 리포트 보기 →</span>
@@ -416,9 +441,18 @@
           <div class="qti-toc-title">목차 · CONTENTS</div>
           <nav class="qti-toc-list" id="qti-toc-list" aria-label="리포트 목차"></nav>
           <div class="qti-rail-actions">
+            {{- if and $isGuide (eq $guideType "scoring") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-score-simulator" data-engage-track="toc_click" data-engage-label="rail_score_sim">🧮 적격·협상 점수 계산기</a>
+            {{- else if and $isGuide (eq $guideType "performance") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-perf-checklist" data-engage-track="toc_click" data-engage-label="rail_perf_chk">✅ 반려 방지 체크리스트</a>
+            {{- else -}}
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-bid-simulator" data-engage-track="toc_click" data-engage-label="rail_sim">🧮 투찰가 시뮬레이터</a>
+            {{- end -}}
             {{- if $isPost -}}
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="{{ "guide/" | relURL }}" data-engage-track="guide_cta_click" data-engage-label="post_rail">📘 낙찰하한율·면허 가이드</a>
+            {{- else if ne $baseName "guide" -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="{{ "guide/" | relURL }}" data-engage-track="guide_cta_click" data-engage-label="spoke_rail_hub">📘 전체 입찰 실무 가이드</a>
+            <a class="qti-btn qti-btn-primary" style="width:100%;font-size:13px;padding:8px 12px;" href="{{ .Site.Home.RelPermalink }}#top6-briefing" data-engage-track="top6_card_click" data-engage-label="guide_rail_top6">🔥 오늘의 고액 공고 Top-6</a>
             {{- else -}}
             <a class="qti-btn qti-btn-primary" style="width:100%;font-size:13px;padding:8px 12px;" href="{{ .Site.Home.RelPermalink }}#top6-briefing" data-engage-track="top6_card_click" data-engage-label="guide_rail_top6">🔥 오늘의 고액 공고 Top-6</a>
             {{- end -}}

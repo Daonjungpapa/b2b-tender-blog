@@ -1,0 +1,65 @@
+{{- /* Phase 1 Contextual Auto-Linking: Matches each G2B post to 2 relevant practical guides with zero manual maintenance */ -}}
+{{- $page := .page -}}
+{{- $meta := .meta -}}
+{{- $org := "" -}}
+{{- if $meta -}}{{- $org = ($meta.org | default "") -}}{{- end -}}
+{{- $raw := printf "%s %s" ($page.Title | default "") ($page.RawContent | default "") -}}
+
+{{- $isLocal := or (in $org "시") (in $org "군") (in $org "구") (in $org "도") (in $org "교육청") (in $org "교육지원청") (in $org "학교") -}}
+{{- $isNego := or (in $raw "협상에 의한 계약") (in $raw "협상계약") (in $raw "제안서") -}}
+{{- $hasPerf := or (in $raw "실적") (in $raw "수행실적") (in $raw "납품실적") -}}
+
+{{- $guides := slice -}}
+{{- if or $isLocal $isNego -}}
+  {{- $tagLbl := cond $isNego "협상에 의한 계약 · 가격80% 산식" "지방계약법(±3%) vs 국가계약법(±2%)" -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/national-vs-local-scoring/" | relURL)
+    "badge" $tagLbl
+    "title" "국가계약법 vs 지방계약법 점수 산출 비교 & 자가 시뮬레이터"
+    "cta" "적격·협상 점수 바로 계산 →"
+    "label" "ctx_scoring"
+  ) -}}
+{{- end -}}
+{{- if $hasPerf -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/performance-certificate/" | relURL)
+    "badge" "실적증명서 발급 · 반려 방지"
+    "title" "공공·민간 실적증명서 떼는 방법 (나라장터 · KOSA · KICA)"
+    "cta" "발급 절차 & 체크리스트 보기 →"
+    "label" "ctx_perf"
+  ) -}}
+{{- end -}}
+{{- if lt (len $guides) 2 -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/" | relURL)
+    "badge" "낙찰하한율 · 0036/1468"
+    "title" "2026 조달청 낙찰하한율(87.745%·84.245%) 및 업종코드 실무 총정리"
+    "cta" "입찰 실무 가이드 열기 →"
+    "label" "ctx_hub"
+  ) -}}
+{{- end -}}
+{{- if lt (len $guides) 2 -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/national-vs-local-scoring/" | relURL)
+    "badge" "국가 vs 지방 점수 산출"
+    "title" "국가계약법 vs 지방계약법 적격심사·협상계약 점수 산출 완전 비교"
+    "cta" "자가점수 시뮬레이터 열기 →"
+    "label" "ctx_scoring_fb"
+  ) -}}
+{{- end -}}
+
+<aside class="inline-related-callout" aria-label="이 공고 투찰 전 필수 실무 가이드" style="margin-top:20px;">
+  <div class="inline-related-title">
+    <span>📘 이 공고 투찰 전 필수 실무 가이드 (자동 매칭)</span>
+    <a href="{{ "guide/" | relURL }}" class="xs" style="font-weight:700;" data-engage-track="post_to_guide_click" data-engage-label="ctx_all">전체 실무 가이드 →</a>
+  </div>
+  <div class="inline-related-grid">
+    {{- range first 2 $guides -}}
+    <a class="inline-related-link" href="{{ .url }}" data-engage-track="post_to_guide_click" data-engage-label="{{ .label }}">
+      <span class="xs muted num">{{ .badge }}</span>
+      <strong style="color:var(--ink);font-size:13.5px;line-height:1.4;">{{ .title }}</strong>
+      <span class="xs" style="color:var(--tender);font-weight:700;">{{ .cta }}</span>
+    </a>
+    {{- end -}}
+  </div>
+</aside>
