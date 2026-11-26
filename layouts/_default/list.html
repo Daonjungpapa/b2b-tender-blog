@@ -18,25 +18,34 @@
 
 <section class="qti-sec" data-filter-root>
   <div class="qti-in">
+    {{- if $isTender -}}
+    <aside class="taxonomy-rescue-banner" aria-label="{{ .Title }} 관련 공공입찰 실무 브리핑 바로가기">
+      <div class="taxonomy-rescue-head">
+        <span class="qti-badge qti-b-tender mono">QUICK BRIEFING &amp; BID CALCULATOR</span>
+        <h2 class="taxonomy-rescue-title">{{ .Title }} 관련 공공입찰 실무 브리핑</h2>
+        <p class="taxonomy-rescue-sub">찾으시는 발주처·면허 요건의 적격심사 낙찰하한율 기준, 복수예가 투찰하한선 계산기, 오늘의 10억+ 대형 입찰공고 Top-6로 바로 이동할 수 있습니다.</p>
+      </div>
+      <div class="taxonomy-rescue-actions">
+        <a href="{{ "guide/" | relURL }}" class="taxonomy-rescue-btn is-guide" data-engage-track="taxonomy_rescue_click" data-engage-label="guide:{{ .Title }}">📘 조달청 낙찰하한율(87.745%)·0036/1468 실무 가이드 →</a>
+        <a href="{{ .Site.Home.RelPermalink }}#g2b-bid-simulator" class="taxonomy-rescue-btn is-sim" data-engage-track="taxonomy_rescue_click" data-engage-label="simulator:{{ .Title }}">🧮 복수예가·컨소시엄 투찰가 계산기 →</a>
+        <a href="{{ .Site.Home.RelPermalink }}#top6-briefing" class="taxonomy-rescue-btn is-top6" data-engage-track="taxonomy_rescue_click" data-engage-label="top6:{{ .Title }}">🔥 오늘의 10억+ 대형 입찰 Top-6 →</a>
+      </div>
+    </aside>
+    {{- end -}}
+
     <div class="qti-eyebrow{{ if $isTender }} is-tender{{ end }}">{{ .Site.Params.trackCode | default "ARCHIVE" }} · {{ if $isTax }}TAXONOMY{{ else }}REPORT ARCHIVE{{ end }}</div>
     <h1 style="font-size:clamp(24px,3.2vw,34px);margin-bottom:8px;">
       {{- if eq .Section "posts" -}}전체 리포트 아카이브{{- else -}}{{ .Title | default .Site.Title }}{{- end -}}
     </h1>
-    <p class="muted" style="margin:0 0 12px;max-width:72ch;">
+    <p class="muted" style="margin:0 0 14px;max-width:72ch;">
       {{- if eq .Section "posts" -}}{{ .Site.Params.heroSummary }}{{- else -}}"{{ .Title }}" 분류에 수록된 정량 분석 및 요약 리포트 목록입니다.{{- end -}}
     </p>
-    {{- if $isTender -}}
-    <div class="g2b-hero-actions">
-      <a href="{{ "guide/" | relURL }}" class="g2b-guide-pill" data-engage-track="guide_cta_click" data-engage-label="archive_header">📘 2026 낙찰하한율(87.745%)·업종코드(0036·1468) 실무 가이드 →</a>
-      <a href="{{ .Site.Home.RelPermalink }}#top6-briefing" class="qti-badge qti-b-dday mono" style="padding:7px 12px;font-size:12.5px;text-decoration:none;">🔥 오늘의 고액 Top-6 브리핑 →</a>
-    </div>
-    {{- end -}}
 
     {{- /* Instant Search & Quick Filter Bar (Swipeable Single Row on Mobile <=640px) */ -}}
     {{- if not $isTax -}}
     <div class="instant-filter-toolbar" role="search" aria-label="공공입찰 아카이브 실시간 발주처 면허코드 지역 검색 및 필터">
       <div class="qti-chips" role="toolbar" aria-label="입찰 공고 아카이브 빠른 필터 칩">
-        <button type="button" class="qti-chip is-active" data-filter-chip="all">전체 ({{ len (where (where .Site.RegularPages "Section" "posts") "Params.noindex" "!=" true) }})</button>
+        <button type="button" class="qti-chip is-active" data-filter-chip="all">전체 ({{ if eq .Section "posts" }}{{ len (where (where .Site.RegularPages "Section" "posts") "Params.noindex" "!=" true) }}{{ else }}{{ len $pages }}{{ end }})</button>
         <button type="button" class="qti-chip" data-filter-chip="0036">0036 정보통신</button>
         <button type="button" class="qti-chip" data-filter-chip="1468">1468 소프트웨어</button>
         <button type="button" class="qti-chip" data-filter-chip="조달청">조달청</button>

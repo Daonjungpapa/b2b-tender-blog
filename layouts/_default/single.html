@@ -436,4 +436,19 @@
     </div>
   </div>
 </section>
+{{- if and $isPost $isTender -}}
+  {{- $nextPostUrl := ("posts/" | relURL) -}}
+  {{- $nextPostLabel := "posts_archive" -}}
+  {{- $nextPostTitle := "다음 입찰공고 리포트 보기" -}}
+  {{- if gt (len $related) 0 -}}
+    {{- $np := index $related 0 -}}
+    {{- $nextPostUrl = $np.RelPermalink -}}
+    {{- $nextPostLabel = ($np.Slug | default $np.RelPermalink) -}}
+    {{- $nextPostTitle = $np.Title -}}
+  {{- end -}}
+<nav class="mobile-sticky-bar" aria-label="모바일 빠른 실행 바">
+  <a href="#g2b-bid-simulator" class="mobile-sticky-btn is-sim" data-sticky-sim-jump data-engage-track="sticky_sim_jump" data-engage-label="{{ $baseName }}">🧮 투찰하한선 즉시계산</a>
+  <a href="{{ $nextPostUrl }}" class="mobile-sticky-btn is-next" data-engage-track="sticky_next_post" data-engage-label="{{ $nextPostLabel }}" title="{{ $nextPostTitle }}">🔥 다음 고액 입찰공고 →</a>
+</nav>
+{{- end -}}
 {{ end }}
