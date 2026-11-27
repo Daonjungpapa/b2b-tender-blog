@@ -78,6 +78,12 @@
               <a href="#g2b-score-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_score_sim_jump">🧮 적격·협상 점수 계산기 ↓</a>
               {{- else if and $isGuide (eq $guideType "performance") -}}
               <a href="#g2b-perf-checklist" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_perf_chk_jump">✅ 반려 방지 체크리스트 ↓</a>
+              {{- else if and $isGuide (eq $guideType "smpp") -}}
+              <a href="#g2b-smpp-checklist" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_smpp_chk_jump">🏭 10자리 코드·실사 체크 ↓</a>
+              {{- else if and $isGuide (eq $guideType "credit") -}}
+              <a href="#g2b-credit-checker" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_credit_chk_jump">🏦 등급별 배점 조회기 ↓</a>
+              {{- else if and $isGuide (eq $guideType "negotiation") -}}
+              <a href="#g2b-nego-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_nego_sim_jump">🤝 5구간 가격점수 계산기 ↓</a>
               {{- else -}}
               <a href="#g2b-bid-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_sim_jump">🧮 투찰가 시뮬레이터 ↓</a>
               {{- end -}}
@@ -160,6 +166,12 @@
             {{ partial "g2b-score-simulator.html" . }}
           {{- else if and $isGuide (eq $guideType "performance") -}}
             {{ partial "g2b-perf-checklist.html" . }}
+          {{- else if and $isGuide (eq $guideType "smpp") -}}
+            {{ partial "g2b-smpp-checklist.html" . }}
+          {{- else if and $isGuide (eq $guideType "credit") -}}
+            {{ partial "g2b-credit-checker.html" . }}
+          {{- else if and $isGuide (eq $guideType "negotiation") -}}
+            {{ partial "g2b-nego-simulator.html" . }}
           {{- end -}}
           {{- /* G2B Bid Price & Consortium Share Simulator (Auto Pre-filled on Posts, Interactive Default on /guide/ Hub) */ -}}
           {{- $initBudget := 300000000 -}}
@@ -445,6 +457,12 @@
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-score-simulator" data-engage-track="toc_click" data-engage-label="rail_score_sim">🧮 적격·협상 점수 계산기</a>
             {{- else if and $isGuide (eq $guideType "performance") -}}
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-perf-checklist" data-engage-track="toc_click" data-engage-label="rail_perf_chk">✅ 반려 방지 체크리스트</a>
+            {{- else if and $isGuide (eq $guideType "smpp") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-smpp-checklist" data-engage-track="toc_click" data-engage-label="rail_smpp_chk">🏭 10자리 코드·실사 체크</a>
+            {{- else if and $isGuide (eq $guideType "credit") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-credit-checker" data-engage-track="toc_click" data-engage-label="rail_credit_chk">🏦 등급별 배점 조회기</a>
+            {{- else if and $isGuide (eq $guideType "negotiation") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-nego-simulator" data-engage-track="toc_click" data-engage-label="rail_nego_sim">🤝 5구간 가격점수 계산기</a>
             {{- else -}}
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-bid-simulator" data-engage-track="toc_click" data-engage-label="rail_sim">🧮 투찰가 시뮬레이터</a>
             {{- end -}}

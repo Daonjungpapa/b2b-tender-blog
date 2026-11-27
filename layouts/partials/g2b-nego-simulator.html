@@ -1,0 +1,155 @@
+<section class="g2b-sim-panel" id="g2b-nego-simulator" aria-labelledby="g2b-nego-heading">
+  <div class="g2b-sim-head">
+    <div>
+      <span class="qti-badge qti-b-tender mono">NEGOTIATION CONTRACT SIMULATOR · 2026</span>
+      <h2 class="g2b-sim-title" id="g2b-nego-heading">🤝 협상에 의한 계약 5구간 투찰률 가격점수 매트릭스 시뮬레이터</h2>
+      <p class="g2b-sim-sub">추정가격과 기술:가격 배점 비중(90:10 · 80:20 · 70:30), 예상 경쟁 최저가를 입력하면 투찰률별 가격점수와 예상 금액을 5구간으로 자동 비교합니다.</p>
+    </div>
+  </div>
+
+  <div class="g2b-sim-grid">
+    <div class="g2b-ctrl-card">
+      <div class="g2b-ctrl-top">
+        <label for="ng-budget">① 기준 추정가격 (원)</label>
+        <span class="g2b-val-badge" id="ng-budget-badge">5억 원</span>
+      </div>
+      <div class="g2b-input-row">
+        <input type="number" id="ng-budget" class="g2b-num-input" min="0" step="10000000" value="500000000" />
+      </div>
+      <div class="g2b-chip-row">
+        <button type="button" class="g2b-mini-chip" data-ng-b="200000000">2억</button>
+        <button type="button" class="g2b-mini-chip is-active" data-ng-b="500000000">5억</button>
+        <button type="button" class="g2b-mini-chip" data-ng-b="1000000000">10억</button>
+        <button type="button" class="g2b-mini-chip" data-ng-b="3000000000">30억</button>
+      </div>
+    </div>
+
+    <div class="g2b-ctrl-card">
+      <div class="g2b-ctrl-top">
+        <label for="ng-ratio">② 기술 : 가격 배점 비중</label>
+        <span class="g2b-val-badge" id="ng-ratio-badge">기술 80 : 가격 20</span>
+      </div>
+      <div class="g2b-input-row">
+        <select id="ng-ratio" class="g2b-select">
+          <option value="10">기술 90 : 가격 10 (대형 SW·AI)</option>
+          <option value="20" selected>기술 80 : 가격 20 (일반 IT·유지관리)</option>
+          <option value="30">기술 70 : 가격 30 (일반 용역)</option>
+        </select>
+      </div>
+      <div class="xs muted" id="ng-cut-hint">기술능력평가 85% 컷라인: 68.0점 이상 필수</div>
+    </div>
+
+    <div class="g2b-ctrl-card">
+      <div class="g2b-ctrl-top">
+        <label for="ng-min">③ 유효 입찰자 중 예상 최저 투찰률 (%)</label>
+        <span class="g2b-val-badge" id="ng-min-badge">80.0%</span>
+      </div>
+      <div class="g2b-input-row">
+        <input type="range" id="ng-min-range" class="g2b-range" min="60" max="95" step="0.5" value="80" aria-label="최저 투찰률" />
+        <input type="number" id="ng-min" class="g2b-num-input" min="50" max="100" step="0.5" value="80.0" style="max-width:86px;" />
+      </div>
+      <div class="xs muted">70% 미만 입력 시 예규에 따라 70.0%로 자동 보정</div>
+    </div>
+
+    <div class="g2b-ctrl-card">
+      <div class="g2b-ctrl-top">
+        <label for="ng-tech">④ 자사 예상 기술평가 점수 (점)</label>
+        <span class="g2b-val-badge" id="ng-tech-badge">74.0점</span>
+      </div>
+      <div class="g2b-input-row">
+        <input type="number" id="ng-tech" class="g2b-num-input" min="0" max="90" step="0.5" value="74.0" />
+      </div>
+      <div class="xs muted" id="ng-tech-status">85% 컷라인 충족 (+6.0점 여유)</div>
+    </div>
+  </div>
+
+  <div class="g2b-matrix-wrap">
+    <table class="g2b-matrix-table">
+      <thead>
+        <tr>
+          <th>자사 투찰률</th>
+          <th>예상 투찰금액 (원)</th>
+          <th>적용 산식 구간</th>
+          <th>가격평점</th>
+          <th>예상 종합점수</th>
+        </tr>
+      </thead>
+      <tbody id="ng-matrix-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("g2b-nego-simulator");
+  if (!root) return;
+
+  function fire(lbl) {
+    if (typeof window.trackQtiEngage === "function") window.trackQtiEngage("guide_calc_run", "nego_mtx_" + lbl, 1000);
+  }
+  function fmtWon(n) { return Math.round(n).toLocaleString("ko-KR") + "원"; }
+  function calcPrice(myRate, rawMin, maxP) {
+    var effMin = Math.max(70, Math.min(rawMin, myRate));
+    if (myRate < 60) return { p: maxP * 0.30, rule: "60% 미만 (30% 제한)" };
+    if (myRate >= 80) return { p: maxP * (effMin / myRate), rule: "80% 이상 기본" };
+    var p = maxP * (effMin / 80) + 2 * ((80 - myRate) / 20);
+    return { p: Math.min(maxP, p), rule: "80% 미만 감쇠" };
+  }
+
+  function render() {
+    var budget = parseFloat(document.getElementById("ng-budget").value) || 0;
+    var maxP = parseFloat(document.getElementById("ng-ratio").value) || 20;
+    var techMax = 100 - maxP;
+    var techCut = techMax * 0.85;
+    var rawMin = parseFloat(document.getElementById("ng-min").value) || 80;
+    var tech = parseFloat(document.getElementById("ng-tech").value) || 0;
+    var passTech = tech >= techCut;
+
+    document.getElementById("ng-budget-badge").textContent = budget >= 100000000 ? (budget / 100000000).toFixed(1) + "억 원" : fmtWon(budget);
+    document.getElementById("ng-ratio-badge").textContent = "기술 " + techMax + " : 가격 " + maxP;
+    document.getElementById("ng-cut-hint").textContent = "기술능력평가 85% 컷라인: " + techCut.toFixed(1) + "점 이상 필수";
+    document.getElementById("ng-min-badge").textContent = rawMin.toFixed(1) + "%";
+    document.getElementById("ng-tech-badge").textContent = tech.toFixed(1) + "점";
+    document.getElementById("ng-tech-status").textContent = passTech
+      ? "85% 컷라인(" + techCut.toFixed(1) + "점) 충족 (+" + (tech - techCut).toFixed(1) + "점)"
+      : "85% 컷라인 미달 (" + (tech - techCut).toFixed(1) + "점) — 협상대상 제외";
+
+    var rates = [95, 90, 85, 80, 75, 59];
+    var html = "";
+    rates.forEach(function (r) {
+      var res = calcPrice(r, rawMin, maxP);
+      var amt = budget * (r / 100);
+      var cls = r === 85 ? ' class="is-current"' : '';
+      var tot = passTech ? (tech + res.p).toFixed(2) + "점" : "컷라인 미달";
+      html += "<tr" + cls + "><td>" + r.toFixed(1) + "%</td><td>" + fmtWon(amt) + "</td><td>" + res.rule + "</td><td><b>" + res.p.toFixed(2) + "점</b> / " + maxP + "</td><td>" + tot + "</td></tr>";
+    });
+    document.getElementById("ng-matrix-body").innerHTML = html;
+  }
+
+  ["ng-budget", "ng-ratio", "ng-min", "ng-tech"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", function () {
+      if (id === "ng-min") document.getElementById("ng-min-range").value = el.value;
+      render(); fire(id);
+    });
+    el.addEventListener("change", function () { render(); fire(id); });
+  });
+  var nr = document.getElementById("ng-min-range");
+  if (nr) nr.addEventListener("input", function () {
+    document.getElementById("ng-min").value = Number(nr.value).toFixed(1);
+    render(); fire("min_slider");
+  });
+  root.querySelectorAll("[data-ng-b]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      root.querySelectorAll("[data-ng-b]").forEach(function (x) { x.classList.remove("is-active"); });
+      b.classList.add("is-active");
+      document.getElementById("ng-budget").value = b.dataset.ngB;
+      render(); fire("budget_" + b.dataset.ngB);
+    });
+  });
+
+  render();
+})();
+</script>

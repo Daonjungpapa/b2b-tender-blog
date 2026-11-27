@@ -1,4 +1,4 @@
-{{- /* Phase 1 Contextual Auto-Linking: Matches each G2B post to 2 relevant practical guides with zero manual maintenance */ -}}
+{{- /* Phase 1 + Phase 2 Contextual Auto-Linking: Matches each G2B post to 2 most relevant practical guides with zero manual maintenance */ -}}
 {{- $page := .page -}}
 {{- $meta := .meta -}}
 {{- $org := "" -}}
@@ -7,26 +7,54 @@
 
 {{- $isLocal := or (in $org "시") (in $org "군") (in $org "구") (in $org "도") (in $org "교육청") (in $org "교육지원청") (in $org "학교") -}}
 {{- $isNego := or (in $raw "협상에 의한 계약") (in $raw "협상계약") (in $raw "제안서") -}}
+{{- $hasSmpp := in $raw "직접생산" -}}
 {{- $hasPerf := or (in $raw "실적") (in $raw "수행실적") (in $raw "납품실적") -}}
+{{- $hasCredit := or (in $raw "신용평가") (in $raw "신용등급") (in $raw "경영상태") -}}
 
 {{- $guides := slice -}}
-{{- if or $isLocal $isNego -}}
-  {{- $tagLbl := cond $isNego "협상에 의한 계약 · 가격80% 산식" "지방계약법(±3%) vs 국가계약법(±2%)" -}}
+{{- if $isNego -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/negotiation-price-score/" | relURL)
+    "badge" "협상에 의한 계약 · 가격80% · 기술85%"
+    "title" "협상에 의한 계약 가격점수(80%·60%) & 5구간 투찰률 시뮬레이터"
+    "cta" "협상계약 점수 바로 계산 →"
+    "label" "ctx_nego"
+  ) -}}
+{{- end -}}
+{{- if $hasSmpp -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/smpp-direct-production/" | relURL)
+    "badge" "직접생산확인증명서 · SMPP 10자리"
+    "title" "직접생산확인증명서(SMPP) 10자리 코드 조회 & 현장실사 매뉴얼"
+    "cta" "10자리 코드 & 체크리스트 →"
+    "label" "ctx_smpp"
+  ) -}}
+{{- end -}}
+{{- if and (lt (len $guides) 2) $isLocal -}}
   {{- $guides = $guides | append (dict
     "url" ("guide/national-vs-local-scoring/" | relURL)
-    "badge" $tagLbl
+    "badge" "지방계약법(±3%) vs 국가계약법(±2%)"
     "title" "국가계약법 vs 지방계약법 점수 산출 비교 & 자가 시뮬레이터"
-    "cta" "적격·협상 점수 바로 계산 →"
+    "cta" "적격심사 점수 바로 계산 →"
     "label" "ctx_scoring"
   ) -}}
 {{- end -}}
-{{- if $hasPerf -}}
+{{- if and (lt (len $guides) 2) $hasPerf -}}
   {{- $guides = $guides | append (dict
     "url" ("guide/performance-certificate/" | relURL)
     "badge" "실적증명서 발급 · 반려 방지"
     "title" "공공·민간 실적증명서 떼는 방법 (나라장터 · KOSA · KICA)"
     "cta" "발급 절차 & 체크리스트 보기 →"
     "label" "ctx_perf"
+  ) -}}
+{{- end -}}
+{{- if and (lt (len $guides) 2) $hasCredit -}}
+  {{- $guides = $guides | append (dict
+    "url" ("guide/credit-rating-g2b/" | relURL)
+    "badge" "신용평가등급 · 나라장터 전송"
+    "title" "공공입찰용 신용평가등급 발급 & 경영상태 배점 조회기"
+    "cta" "등급별 배점 바로 조회 →"
+    "label" "ctx_credit"
   ) -}}
 {{- end -}}
 {{- if lt (len $guides) 2 -}}
@@ -51,7 +79,7 @@
 <aside class="inline-related-callout" aria-label="이 공고 투찰 전 필수 실무 가이드" style="margin-top:20px;">
   <div class="inline-related-title">
     <span>📘 이 공고 투찰 전 필수 실무 가이드 (자동 매칭)</span>
-    <a href="{{ "guide/" | relURL }}" class="xs" style="font-weight:700;" data-engage-track="post_to_guide_click" data-engage-label="ctx_all">전체 실무 가이드 →</a>
+    <a href="{{ "guide/" | relURL }}" class="xs" style="font-weight:700;" data-engage-track="post_to_guide_click" data-engage-label="ctx_all">전체 실무 가이드(5종) →</a>
   </div>
   <div class="inline-related-grid">
     {{- range first 2 $guides -}}

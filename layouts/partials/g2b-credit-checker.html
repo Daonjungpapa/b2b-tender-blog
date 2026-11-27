@@ -1,0 +1,127 @@
+<section class="g2b-sim-panel" id="g2b-credit-checker" aria-labelledby="g2b-credit-heading">
+  <div class="g2b-sim-head">
+    <div>
+      <span class="qti-badge qti-b-tender mono">CREDIT RATING &amp; G2B SYNC CHECKER · 2026</span>
+      <h2 class="g2b-sim-title" id="g2b-credit-heading">🏦 신용평가등급별 경영상태 배점 조회기 &amp; 나라장터 전송 점검</h2>
+      <p class="g2b-sim-sub">자사의 기업신용평가등급을 선택하면 조달청(10점 만점) vs 지자체(25점 만점 참고) 예상 경영상태 점수와 감점 폭을 즉시 비교합니다.</p>
+    </div>
+  </div>
+
+  <div class="g2b-ctrl-card" style="margin-bottom:14px;">
+    <div class="g2b-ctrl-top">
+      <label for="cr-grade">① 자사 기업신용평가등급 선택</label>
+      <span class="g2b-val-badge" id="cr-grade-badge">BBB+</span>
+    </div>
+    <div class="g2b-chip-row">
+      <button type="button" class="g2b-mini-chip" data-cr-grade="A">AAA~A-</button>
+      <button type="button" class="g2b-mini-chip is-active" data-cr-grade="BBB+">BBB+</button>
+      <button type="button" class="g2b-mini-chip" data-cr-grade="BBB0">BBB0</button>
+      <button type="button" class="g2b-mini-chip" data-cr-grade="BBB-">BBB-</button>
+      <button type="button" class="g2b-mini-chip" data-cr-grade="BB0">BB+~BB0</button>
+      <button type="button" class="g2b-mini-chip" data-cr-grade="BB-">BB-</button>
+      <button type="button" class="g2b-mini-chip" data-cr-grade="B">B+~B-</button>
+      <button type="button" class="g2b-mini-chip" data-cr-grade="CCC">CCC+ 이하</button>
+    </div>
+  </div>
+
+  <div class="g2b-out-grid" style="margin-bottom:14px;">
+    <div class="g2b-out-card">
+      <div class="g2b-out-lbl">조달청 일반용역 (10점 만점 기준)</div>
+      <div class="g2b-out-val" id="cr-out-nat">9.8점</div>
+      <div class="g2b-out-sub" id="cr-out-nat-sub">만점 대비 -0.2점</div>
+    </div>
+    <div class="g2b-out-card is-highlight">
+      <div class="g2b-out-lbl">지자체 일반용역 (25점 만점 참고)</div>
+      <div class="g2b-out-val" id="cr-out-loc">24.5점</div>
+      <div class="g2b-out-sub" id="cr-out-loc-sub">만점 대비 -0.5점</div>
+    </div>
+    <div class="g2b-out-card">
+      <div class="g2b-out-lbl">실무 대응 권고</div>
+      <div class="g2b-out-val" id="cr-out-adv" style="font-size:15px;">양호 (신인도 보완)</div>
+      <div class="g2b-out-sub" id="cr-out-adv-sub">고시금액 미만 소기업 특례 별도 확인</div>
+    </div>
+  </div>
+
+  <div class="g2b-ctrl-card">
+    <div class="g2b-ctrl-top">
+      <span>② 투찰 전 나라장터 전송 완료 4대 체크</span>
+      <span class="g2b-val-badge" id="cr-prog-badge">0 / 4 완료</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-cr-item="r1" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>공고일 전일 이전 평가 완료:</b> 입찰공고일 기준 유효기간(1년) 내 등급인가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-cr-item="r2" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>평가사 '조달청(나라장터) 전송' 실행:</b> 나이스디앤비·이크레더블·KoDATA에서 전송 완료 처리했는가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-cr-item="r3" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>나라장터 [증빙서류 → 신용상태] 반영 확인:</b> 나라장터 화면에서 실제 등급이 정상 조회되는가?</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-cr-item="r4" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>소기업·창업기업 만점 특례 확인:</b> 공고문 적격심사 세부기준에 경영상태 만점 특례가 있는지 확인했는가?</span>
+      </label>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("g2b-credit-checker");
+  if (!root) return;
+
+  var data = {
+    "A":    { nat: 10.0, loc: 25.0, adv: "만점 구간 (감점 없음)", sub: "국가·지방 모두 경영상태 만점" },
+    "BBB+": { nat: 9.8,  loc: 24.5, adv: "양호 (소폭 감점)", sub: "신인도·지역가점으로 충분히 보완 가능" },
+    "BBB0": { nat: 9.6,  loc: 24.0, adv: "주의 (지자체 -1.0점)", sub: "지자체 25점 구간은 실적·신인도 만점 점검" },
+    "BBB-": { nat: 9.4,  loc: 23.5, adv: "주의 (지자체 -1.5점)", sub: "고시금액 미만 소기업 특례 해당 여부 확인" },
+    "BB0":  { nat: 9.2,  loc: 22.0, adv: "보완 필요 (-3.0점)", sub: "단독 투찰 시 통과점수(85점) 사전 검산 필수" },
+    "BB-":  { nat: 9.0,  loc: 20.0, adv: "경고 (지자체 -5.0점)", sub: "공동수급(컨소시엄) 또는 특례 공고 검토 권장" },
+    "B":    { nat: 8.8,  loc: 18.0, adv: "위험 (지자체 -7.0점)", sub: "적격 통과 어려움 — 공동수급 보완 검토" },
+    "CCC":  { nat: 7.0,  loc: 15.0, adv: "고위험 (-10.0점)", sub: "결산 재무 개선 및 등급 재평가 우선 권장" }
+  };
+
+  var gBtns = root.querySelectorAll("[data-cr-grade]");
+  function render(g) {
+    var d = data[g] || data["BBB+"];
+    document.getElementById("cr-grade-badge").textContent = g;
+    document.getElementById("cr-out-nat").textContent = d.nat.toFixed(1) + "점";
+    document.getElementById("cr-out-nat-sub").textContent = "만점(10점) 대비 " + (d.nat - 10).toFixed(1) + "점";
+    document.getElementById("cr-out-loc").textContent = d.loc.toFixed(1) + "점";
+    document.getElementById("cr-out-loc-sub").textContent = "만점(25점) 대비 " + (d.loc - 25).toFixed(1) + "점";
+    document.getElementById("cr-out-adv").textContent = d.adv;
+    document.getElementById("cr-out-adv-sub").textContent = d.sub;
+  }
+  gBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var g = b.dataset.crGrade;
+      gBtns.forEach(function (x) { x.classList.toggle("is-active", x.dataset.crGrade === g); });
+      render(g);
+      if (typeof window.trackQtiEngage === "function") window.trackQtiEngage("guide_calc_run", "credit_" + g, 400);
+    });
+  });
+  render("BBB+");
+
+  var KEY = "qti_g2b_credit_checks_v1";
+  var boxes = root.querySelectorAll("[data-cr-item]");
+  function load() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (_) { return {}; } }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (_) {} }
+  function upd() {
+    var d = 0; boxes.forEach(function (c) { if (c.checked) d++; });
+    document.getElementById("cr-prog-badge").textContent = d + " / " + boxes.length + " 완료";
+  }
+  var st = load();
+  boxes.forEach(function (cb) {
+    if (st[cb.dataset.crItem]) cb.checked = true;
+    cb.addEventListener("change", function () {
+      st[cb.dataset.crItem] = cb.checked; save(st); upd();
+      if (typeof window.trackQtiEngage === "function") window.trackQtiEngage("guide_checklist_toggle", "credit_" + cb.dataset.crItem + ":" + (cb.checked ? "1" : "0"), 250);
+    });
+  });
+  upd();
+})();
+</script>
