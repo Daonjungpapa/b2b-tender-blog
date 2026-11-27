@@ -1,0 +1,118 @@
+<section class="g2b-sim-panel" id="g2b-dday-checklist" aria-labelledby="g2b-dday-heading">
+  <div class="g2b-sim-head">
+    <div>
+      <span class="qti-badge qti-b-tender mono">D-DAY BID SAFETY CHECKLIST · 2026</span>
+      <h2 class="g2b-sim-title" id="g2b-dday-heading">🛡️ 투찰 D-Day 10대 실수 방지 자가점검 체크리스트</h2>
+      <p class="g2b-sim-sub">단계별(D-3 사전준비 · D-1 마감전일 · D-Day 투찰직전) 항목을 직접 체크해 실격·부정당 제재 리스크를 차단하세요. (브라우저 자동 저장)</p>
+    </div>
+  </div>
+
+  <div class="g2b-ctrl-card">
+    <div class="g2b-ctrl-top">
+      <div class="g2b-chip-row">
+        <button type="button" class="g2b-mini-chip is-active" data-dd-filter="all">전체 (10)</button>
+        <button type="button" class="g2b-mini-chip" data-dd-filter="d3">D-3 사전준비</button>
+        <button type="button" class="g2b-mini-chip" data-dd-filter="d1">D-1 마감전일</button>
+        <button type="button" class="g2b-mini-chip" data-dd-filter="d0">D-Day 투찰직전</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="g2b-val-badge" id="dd-prog-badge">0 / 10 완료</span>
+        <button type="button" class="g2b-mini-chip" id="dd-reset-btn">초기화</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;" id="dd-list">
+      <label data-dd-stage="d3" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m1" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-3] 공고일 기준 면허·자격 유효기간:</b> 0036/1468, SMPP 10자리, 중소기업확인서, 신용평가등급이 공고일 기준 유효한가?</span>
+      </label>
+      <label data-dd-stage="d3" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m2" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-3] 입찰보증금 면제 여부 확인:</b> 납부확약서 갈음 대상인지, 보증서(SGI 등) 별도 제출 대상인지 공고문 확인했는가?</span>
+      </label>
+      <label data-dd-stage="d3" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m3" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-3] 원가·공급가액 마진 검증:</b> 낙찰하한선 기준 VAT 제외 공급가액으로 수행 가능한지 원가를 사전 검토했는가?</span>
+      </label>
+      <label data-dd-stage="d1" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m4" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-1] 공동수급협정서 전일 18:00 승인:</b> 컨소시엄 참여 시 마감 전일 18시까지 대표사·구성원 나라장터 전자승인을 마쳤는가?</span>
+      </label>
+      <label data-dd-stage="d1" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m5" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-1] 사업자 공동인증서·생체인증 테스트:</b> 나라장터 로그인 및 최종 서명용 법인 인증서 유효기간을 사전 테스트했는가?</span>
+      </label>
+      <label data-dd-stage="d1" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m6" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-1] 동일 IP/PC 중복투찰 차단:</b> 법인 전용 PC 및 독립 네트워크에서 단독 투찰 환경을 확보했는가?</span>
+      </label>
+      <label data-dd-stage="d0" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m7" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-Day] 정정공고 차수(-001 등) 최종 확인:</b> 기초금액 변경이나 마감일시 정정 여부를 당일 원문에서 재확인했는가?</span>
+      </label>
+      <label data-dd-stage="d0" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m8" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-Day] 기초금액(VAT 포함) 기준 검산:</b> 추정가격이 아닌 기초금액 기준으로 낙찰하한선 이상 금액을 산출했는가?</span>
+      </label>
+      <label data-dd-stage="d0" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m9" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-Day] 원/천원 단위 &amp; 한글 금액 교차 확인:</b> 숫자 '0' 자릿수 오타가 없는지 한글 표기 금액과 대조했는가?</span>
+      </label>
+      <label data-dd-stage="d0" style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-dd-item="m10" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>[D-Day] 마감 1시간 전 송신 완료:</b> 서버 지연 대비 마감 최소 1시간 전에 입찰서 송신 및 접수증을 확인했는가?</span>
+      </label>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("g2b-dday-checklist");
+  if (!root) return;
+
+  var KEY = "qti_g2b_dday_checks_v1";
+  var boxes = root.querySelectorAll("[data-dd-item]");
+  var labels = root.querySelectorAll("[data-dd-stage]");
+  var fBtns = root.querySelectorAll("[data-dd-filter]");
+
+  function load() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (_) { return {}; } }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (_) {} }
+  function upd() {
+    var d = 0; boxes.forEach(function (c) { if (c.checked) d++; });
+    document.getElementById("dd-prog-badge").textContent = d + " / " + boxes.length + " 완료";
+  }
+
+  var st = load();
+  boxes.forEach(function (cb) {
+    if (st[cb.dataset.ddItem]) cb.checked = true;
+    cb.addEventListener("change", function () {
+      st[cb.dataset.ddItem] = cb.checked; save(st); upd();
+      if (typeof window.trackQtiEngage === "function") {
+        window.trackQtiEngage("guide_checklist_toggle", "dday_" + cb.dataset.ddItem + ":" + (cb.checked ? "1" : "0"), 250);
+      }
+    });
+  });
+
+  fBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = b.dataset.ddFilter;
+      fBtns.forEach(function (x) { x.classList.toggle("is-active", x.dataset.ddFilter === f); });
+      labels.forEach(function (lbl) {
+        lbl.style.display = (f === "all" || lbl.dataset.ddStage === f) ? "flex" : "none";
+      });
+    });
+  });
+
+  var resetBtn = document.getElementById("dd-reset-btn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", function () {
+      st = {}; save(st);
+      boxes.forEach(function (c) { c.checked = false; });
+      upd();
+    });
+  }
+  upd();
+})();
+</script>

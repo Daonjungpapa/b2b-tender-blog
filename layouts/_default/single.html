@@ -84,6 +84,10 @@
               <a href="#g2b-credit-checker" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_credit_chk_jump">🏦 등급별 배점 조회기 ↓</a>
               {{- else if and $isGuide (eq $guideType "negotiation") -}}
               <a href="#g2b-nego-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_nego_sim_jump">🤝 5구간 가격점수 계산기 ↓</a>
+              {{- else if and $isGuide (eq $guideType "mistakes") -}}
+              <a href="#g2b-dday-checklist" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_dday_chk_jump">🛡️ D-Day 10대 체크리스트 ↓</a>
+              {{- else if and $isGuide (eq $guideType "postopening") -}}
+              <a href="#g2b-spec-risk-checker" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_spec_risk_jump">🔍 시방서 독소조항 진단기 ↓</a>
               {{- else -}}
               <a href="#g2b-bid-simulator" class="qti-badge qti-b-dday mono" style="text-decoration:none;" data-engage-track="toc_click" data-engage-label="header_sim_jump">🧮 투찰가 시뮬레이터 ↓</a>
               {{- end -}}
@@ -172,6 +176,10 @@
             {{ partial "g2b-credit-checker.html" . }}
           {{- else if and $isGuide (eq $guideType "negotiation") -}}
             {{ partial "g2b-nego-simulator.html" . }}
+          {{- else if and $isGuide (eq $guideType "mistakes") -}}
+            {{ partial "g2b-dday-checklist.html" . }}
+          {{- else if and $isGuide (eq $guideType "postopening") -}}
+            {{ partial "g2b-postopening-tracker.html" . }}
           {{- end -}}
           {{- /* G2B Bid Price & Consortium Share Simulator (Auto Pre-filled on Posts, Interactive Default on /guide/ Hub) */ -}}
           {{- $initBudget := 300000000 -}}
@@ -463,6 +471,10 @@
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-credit-checker" data-engage-track="toc_click" data-engage-label="rail_credit_chk">🏦 등급별 배점 조회기</a>
             {{- else if and $isGuide (eq $guideType "negotiation") -}}
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-nego-simulator" data-engage-track="toc_click" data-engage-label="rail_nego_sim">🤝 5구간 가격점수 계산기</a>
+            {{- else if and $isGuide (eq $guideType "mistakes") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-dday-checklist" data-engage-track="toc_click" data-engage-label="rail_dday_chk">🛡️ D-Day 10대 체크리스트</a>
+            {{- else if and $isGuide (eq $guideType "postopening") -}}
+            <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-spec-risk-checker" data-engage-track="toc_click" data-engage-label="rail_spec_risk">🔍 시방서 독소조항 진단기</a>
             {{- else -}}
             <a class="qti-btn qti-btn-ghost" style="width:100%;font-size:13px;padding:8px 12px;" href="#g2b-bid-simulator" data-engage-track="toc_click" data-engage-label="rail_sim">🧮 투찰가 시뮬레이터</a>
             {{- end -}}

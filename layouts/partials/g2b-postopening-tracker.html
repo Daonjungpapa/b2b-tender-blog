@@ -1,0 +1,88 @@
+<section class="g2b-sim-panel" id="g2b-spec-risk-checker" aria-labelledby="g2b-spec-risk-heading">
+  <div class="g2b-sim-head">
+    <div>
+      <span class="qti-badge qti-b-tender mono">SPEC RISK &amp; POST-BID TRACKER · 2026</span>
+      <h2 class="g2b-sim-title" id="g2b-spec-risk-heading">🔍 과업지시서(시방서) 5대 독소조항 자가진단기</h2>
+      <p class="g2b-sim-sub">검토 중인 공고의 과업지시서에서 해당되는 리스크 항목을 체크하면, 투찰 전 주의 등급과 대응 권고를 즉시 산출합니다.</p>
+    </div>
+  </div>
+
+  <div class="g2b-ctrl-card" style="margin-bottom:14px;">
+    <div class="g2b-ctrl-top">
+      <span>① 시방서 독소조항 해당 항목 체크</span>
+      <span class="g2b-val-badge" id="sr-count-badge">감지 리스크 0건</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-sr-item="r1" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>특정 벤더·외산 규격 종속:</b> 자사 취급 장비로 충족하기 어려운 특정 제조사 전용 규격·인증이 명시됨</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-sr-item="r2" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>과도한 무상 하자보수 / 상주 인력:</b> 무상 하자보수 2~3년 이상 또는 예산 대비 과도한 상주 기술자 배치를 요구함</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-sr-item="r3" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>촉박한 납기 &amp; 지체상금 부담:</b> 외산 장비 리드타임 대비 납기가 30~60일 이내로 촉박함</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-sr-item="r4" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>24×365 관제 · 긴급출동 의무:</b> 원거리 지역인데 장애 시 2~4시간 이내 현장 도착 조건이 포함됨</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;cursor:pointer;">
+        <input type="checkbox" data-sr-item="r5" style="margin-top:3px;accent-color:var(--tender,#6D4AFF);width:16px;height:16px;flex-shrink:0;" />
+        <span><b>안전보건·중대재해 비용 미반영:</b> 안전보건관리계획서·안전관리자 배치를 요구하나 내역서 예산이 부족함</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="g2b-out-grid">
+    <div class="g2b-out-card is-highlight">
+      <div class="g2b-out-lbl">시방서 리스크 자가 진단 등급</div>
+      <div class="g2b-out-val" id="sr-level">낮음 (정상 검토)</div>
+      <div class="g2b-out-sub" id="sr-level-sub">기본 원가·자격 확인 후 투찰 검토</div>
+    </div>
+    <div class="g2b-out-card" style="grid-column:span 2;">
+      <div class="g2b-out-lbl">실무 대응 권고 &amp; 자동화 안내</div>
+      <div style="font-size:13.2px;line-height:1.55;color:var(--text);margin-top:4px;" id="sr-advice">
+        매번 수십 페이지 시방서와 외산 벤더 데이터시트를 수작업으로 대조하고 계신다면, <b>사내 폐쇄망 시방서 규격대비표 자동화(14일 무료 파일럿)</b>로 사전 검토 시간을 단축할 수 있습니다.
+        <a href="{{ "contact/" | relURL }}" style="color:var(--tender);font-weight:700;margin-left:4px;" data-engage-track="guide_cta_click" data-engage-label="spec_risk_pilot">14일 무료 파일럿 보기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("g2b-spec-risk-checker");
+  if (!root) return;
+  var boxes = root.querySelectorAll("[data-sr-item]");
+
+  function upd() {
+    var cnt = 0;
+    boxes.forEach(function (c) { if (c.checked) cnt++; });
+    document.getElementById("sr-count-badge").textContent = "감지 리스크 " + cnt + "건";
+    var lvl = "낮음 (정상 검토)", sub = "기본 원가·자격 확인 후 투찰 검토";
+    if (cnt === 1) {
+      lvl = "주의 (1건 감지)"; sub = "발주처 사전 질의응답(Q&A) 및 원가 예비비 반영 검토";
+    } else if (cnt === 2) {
+      lvl = "경고 (2건 감지)"; sub = "지역 파트너 공동수급·벤더 확약서 확보 후 투찰 결정 권장";
+    } else if (cnt >= 3) {
+      lvl = "고위험 (" + cnt + "건 감지)"; sub = "적자 수주·지체상금 위험 높음 — 투찰 보류 또는 조건 보완 필수";
+    }
+    document.getElementById("sr-level").textContent = lvl;
+    document.getElementById("sr-level-sub").textContent = sub;
+  }
+
+  boxes.forEach(function (cb) {
+    cb.addEventListener("change", function () {
+      upd();
+      if (typeof window.trackQtiEngage === "function") {
+        window.trackQtiEngage("guide_checklist_toggle", "spec_risk_" + cb.dataset.srItem + ":" + (cb.checked ? "1" : "0"), 250);
+      }
+    });
+  });
+  upd();
+})();
+</script>
